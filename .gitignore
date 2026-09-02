@@ -1,0 +1,17 @@
+# Backend
+be/.env
+be/vendor/
+
+
+# Frontend
+fe/.env
+fe/node_modules/
+fe/dist/
+
+# Editor
+.vscode/
+.idea/
+
+# Operating System
+.DS_Store
+Thumbs.db
