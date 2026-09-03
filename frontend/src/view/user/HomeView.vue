@@ -1,3 +1,7 @@
+<script setup>
+import { Gamepad2, Monitor, Zap } from "lucide-vue-next";
+</script>
+
 <template>
   <div class="min-h-screen bg-[#F6F4EB] text-slate-800">
 
@@ -10,25 +14,29 @@
           <div
             class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#4682A9] text-white"
           >
-            🎮
+            <!-- Ganti emoji dengan Ikon Lucide -->
+            <Gamepad2 :size="22" />
+
+            
           </div>
 
           <div>
             <h1 class="text-lg font-bold text-[#4682A9]">
-              RENTAL
+              PLAY
             </h1>
             <p class="-mt-1 text-xs font-medium tracking-wider text-slate-500">
-              PC 
+              Point 
             </p>
           </div>
         </div>
 
         <!-- Admin -->
-        <button
+        <RouterLink
+          to="/admin/login"
           class="rounded-lg px-4 py-2 text-sm font-medium text-[#4682A9] transition hover:bg-[#91C8E4]/30"
         >
           Admin
-        </button>
+        </RouterLink>
 
       </nav>
     </header>
@@ -79,10 +87,10 @@
 
             <!-- Feature 1 -->
             <div
-              class="rounded-2xl border border-[#749BC2]/20 bg-white/60 p-5"
+              class="rounded-2xl border border-[#749BC2]/20 bg-white/60 p-5 text-left"
             >
-              <div class="mb-3 text-2xl">
-                🖥️
+              <div class="mb-3 text-[#4682A9]">
+                <Monitor :size="28" />
               </div>
 
               <h3 class="font-semibold text-slate-800">
@@ -97,10 +105,10 @@
 
             <!-- Feature 2 -->
             <div
-              class="rounded-2xl border border-[#749BC2]/20 bg-white/60 p-5"
+              class="rounded-2xl border border-[#749BC2]/20 bg-white/60 p-5 text-left"
             >
-              <div class="mb-3 text-2xl">
-                🎮
+              <div class="mb-3 text-[#4682A9]">
+                <Gamepad2 :size="28" />
               </div>
 
               <h3 class="font-semibold text-slate-800">
@@ -115,10 +123,10 @@
 
             <!-- Feature 3 -->
             <div
-              class="rounded-2xl border border-[#749BC2]/20 bg-white/60 p-5"
+              class="rounded-2xl border border-[#749BC2]/20 bg-white/60 p-5 text-left"
             >
-              <div class="mb-3 text-2xl">
-                ⚡
+              <div class="mb-3 text-[#4682A9]">
+                <Zap :size="28" />
               </div>
 
               <h3 class="font-semibold text-slate-800">
