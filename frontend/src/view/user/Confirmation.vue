@@ -1,3 +1,8 @@
+<script setup>
+import { RouterLink } from 'vue-router';
+import { Gamepad2, Ticket } from 'lucide-vue-next';
+</script>
+
 <template>
   <div class="min-h-screen bg-[#F6F4EB]">
 
@@ -9,16 +14,16 @@
           <div
             class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4682A9] text-lg text-white"
           >
-            🎮
+            <Gamepad2 :size="22" />
           </div>
 
           <div>
             <h1 class="text-base font-bold text-[#4682A9]">
-              RENTAL
+              PLAY
             </h1>
 
             <p class="-mt-1 text-[10px] font-medium tracking-widest text-slate-500">
-              PC & PS
+              Point
             </p>
           </div>
         </RouterLink>

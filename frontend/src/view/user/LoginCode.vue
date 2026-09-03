@@ -1,3 +1,8 @@
+<script setup>
+import { RouterLink } from 'vue-router';
+import { Gamepad2, Ticket } from 'lucide-vue-next';
+</script>
+
 <template>
   <div class="min-h-screen bg-[#F6F4EB]">
 
@@ -9,15 +14,15 @@
           <div
             class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4682A9] text-lg text-white"
           >
-            🎮
+            <Gamepad2 :size="22" />
           </div>
 
           <div>
             <h1 class="text-base font-bold text-[#4682A9]">
-              RENTAL
+              PLAY
             </h1>
             <p class="-mt-1 text-[10px] font-medium tracking-widest text-slate-500">
-              PC & PS
+              Point 
             </p>
           </div>
         </RouterLink>
@@ -42,7 +47,7 @@
         <div
           class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#91C8E4]/40 text-3xl"
         >
-          🎟️
+          <Ticket :size="36" color="#4682A9" />
         </div>
 
         <!-- Heading -->
@@ -77,11 +82,13 @@
             class="mt-2 w-full rounded-xl border border-slate-200 bg-[#F6F4EB]/40 px-4 py-3 text-center font-medium tracking-widest text-slate-700 outline-none transition placeholder:tracking-normal placeholder:text-slate-400 focus:border-[#4682A9] focus:ring-4 focus:ring-[#91C8E4]/30"
           />
 
-          <button
-            class="mt-5 w-full rounded-xl bg-[#4682A9] py-3.5 text-sm font-semibold text-white transition hover:bg-[#749BC2]"
+          <RouterLink
+          to="/rental/confirmation"
+            class="mt-5 flex items-center justify-center w-full rounded-xl bg-[#4682A9] py-3.5 text-sm font-semibold text-white transition hover:bg-[#749BC2]"
           >
             Lanjutkan
-          </button>
+          </RouterLink
+          >
 
         </div>
 

@@ -4,6 +4,10 @@ import { createRouter, createWebHistory } from "vue-router";
 const router = createRouter({
     history: createWebHistory(),
     routes: [
+
+        //----------  
+        // User Routes
+        //----------  
         {
             path: "/",
             name: "Home",
@@ -29,10 +33,39 @@ const router = createRouter({
             name: "ActiveSession",
             component: () => import("../view/user/ActiveSession.vue"),
         },
+
+        //----------  
+        // Admin Routes
+        //----------  
         {
             path: "/admin/login",
             name: "Login",
             component: () => import("../view/admin/Login.vue")
+        },
+        {
+            path: "/admin/dashboard",
+            name: "AdminDashboard",
+            component: () => import("../view/admin/Dashboard.vue")
+        },
+        {
+            path: '/admin/perangkat',
+            name: 'AdminPerangkat',
+            component: () => import("../view/admin/Perangkat.vue")
+        },
+        {
+            path: '/admin/rental',
+            name: 'AdminRental',
+            component: () => import("../view/admin/Rentals.vue")
+        },
+        {
+            path: '/admin/transaksi',
+            name: 'AdminTransaksi',
+            component: () => import("../view/admin/Transaksi.vue")
+        },
+        {
+            path: '/admin/settings',
+            name: 'AdminSettings',
+            component: () => import("../view/admin/Settings.vue")
         }
     ],
 })
