@@ -1,6 +1,6 @@
 <script setup>
 import { useRoute, useRouter } from "vue-router";
-import {ref, onMounted} from "vue";
+import { ref, onMounted } from "vue";
 import {
   LayoutDashboard,
   Monitor,
@@ -57,10 +57,10 @@ const menuItems = [
 const logout = async () => {
   loading.value = true
 
-  try{
+  try {
     const token = localStorage.getItem("token")
 
-    await fetch("http://10.10.9.26:8000/api/logout", {
+    await fetch("http://127.0.0.1:8000/api/logout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -72,7 +72,7 @@ const logout = async () => {
     localStorage.removeItem("token");
 
     router.push("/admin/login");
-  } catch(err){
+  } catch (err) {
     console.error(err)
   } finally {
     loading.value = false
@@ -80,30 +80,37 @@ const logout = async () => {
 };
 
 const getAdmin = async () => {
-  try{
+  try {
     const token = localStorage.getItem("token");
 
-    const response = await fetch("http://10.10.9.26:8000/api/me", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/user",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       }
-    });
+    );
 
     const data = await response.json();
 
-    if(!response.ok){
-      throw new Error(data.message || "Gagal mengambil data admin");
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Gagal mengambil data admin"
+      );
     }
 
-    admin.value = await response.json();
-  } catch(err){
-    console.error(err)
+    admin.value = data;
+
+    console.log("ADMIN DATA:", data);
+
+  } catch (err) {
+    console.error("Error get admin:", err);
   }
 };
-
 
 onMounted(() => {
   getAdmin();
@@ -111,14 +118,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <aside
-    class="fixed left-0 top-0 hidden h-screen w-64 bg-[#4682A9] p-6 text-white lg:flex lg:flex-col"
-  >
+  <aside class="fixed left-0 top-0 hidden h-screen w-64 bg-[#4682A9] p-6 text-white lg:flex lg:flex-col">
     <!-- Logo -->
     <div class="flex items-center gap-3">
-      <div
-        class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-lg"
-      >
+      <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-lg">
         <Gamepad2 :size="21" :stroke-width="1.8" />
       </div>
 
@@ -135,22 +138,12 @@ onMounted(() => {
 
     <!-- Navigation -->
     <nav class="mt-12 space-y-2">
-      <RouterLink
-        v-for="item in menuItems"
-        :key="item.path"
-        :to="item.path"
-        class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition"
-        :class="
-          route.path === item.path
+      <RouterLink v-for="item in menuItems" :key="item.path" :to="item.path"
+        class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition" :class="route.path === item.path
             ? 'bg-white/15 text-white'
             : 'text-white/75 hover:bg-white/10 hover:text-white'
-        "
-      >
-       <component
-       :is="item.icon"
-       :size="18"
-       :stroke-width="1.8"
-       />
+          ">
+        <component :is="item.icon" :size="18" :stroke-width="1.8" />
         {{ item.name }}
       </RouterLink>
     </nav>
@@ -159,9 +152,7 @@ onMounted(() => {
     <div class="mt-auto">
       <div class="mb-4 border-t border-white/15 pt-5">
         <div class="flex items-center gap-3">
-          <div
-            class="flex h-10 w-10 items-center justify-center rounded-full bg-white/15"
-          >
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/15">
             A
           </div>
 
@@ -177,19 +168,13 @@ onMounted(() => {
         </div>
       </div>
 
-     <button 
-     @click="logout"
-     :disabled="loading" 
-     
-     class="flex items-center gap-3 rounded-xl px-19 py-3 text-sm font-bold bg-red-500/100 text-white/70 transition hover:bg-red-500/90 hover:text-white cursor-pointer">
-     
-     <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" v-if="loading"></span>
-    <LogOut v-else
-    :size="16"
-    :stroke-width="1.8"
-    />
-     keluar
-     </button>
+      <button @click="logout" :disabled="loading"
+        class="flex items-center gap-3 rounded-xl px-19 py-3 text-sm font-bold bg-red-500/100 text-white/70 transition hover:bg-red-500/90 hover:text-white cursor-pointer">
+
+        <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" v-if="loading"></span>
+        <LogOut v-else :size="16" :stroke-width="1.8" />
+        keluar
+      </button>
     </div>
   </aside>
 </template>
