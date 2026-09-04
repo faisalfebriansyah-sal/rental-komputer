@@ -9,6 +9,7 @@ import {
   Settings,
   LogOut,
   Gamepad2,
+  User2
 } from "lucide-vue-next";
 
 
@@ -25,6 +26,11 @@ const menuItems = [
     name: "Dashboard",
     icon: LayoutDashboard,
     path: "/admin/dashboard",
+  },
+  {
+    name: "Pelanggan",
+    icon: User2,
+    path: "/admin/customers",
   },
   {
     name: "Perangkat",
@@ -54,7 +60,7 @@ const logout = async () => {
   try{
     const token = localStorage.getItem("token")
 
-    await fetch("http://localhost:8000/api/logout", {
+    await fetch("http://10.10.9.26:8000/api/logout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -77,7 +83,7 @@ const getAdmin = async () => {
   try{
     const token = localStorage.getItem("token");
 
-    const response = await fetch("http://localhost:8000/api/me", {
+    const response = await fetch("http://10.10.9.26:8000/api/me", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
