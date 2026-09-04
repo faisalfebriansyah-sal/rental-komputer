@@ -13,8 +13,8 @@ const loading = ref(false)
 const login = async () => {
   loading.value = true;
 
-  try {
-    const response = await fetch("http://localhost:8000/api/login", {
+  try { 
+    const response = await fetch("http://10.10.9.26:8000/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
