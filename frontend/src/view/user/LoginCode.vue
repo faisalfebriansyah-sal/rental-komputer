@@ -1,6 +1,62 @@
 <script setup>
-import { RouterLink } from 'vue-router';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { Gamepad2, Ticket } from 'lucide-vue-next';
+
+const router = useRouter();
+
+const rentalCode = ref('');
+const errorMessage = ref('');
+const loading = ref(false);
+
+const submitCode = async () => {
+  errorMessage.value = '';
+
+  if (!rentalCode.value.trim()) {
+    errorMessage.value = 'Kode rental wajib diisi.';
+    return;
+  }
+
+  loading.value = true;
+
+  try {
+    const response = await fetch(
+      'http://127.0.0.1:8000/api/rental/verify-code',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          kode_sesi: rentalCode.value.trim()
+        })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      errorMessage.value = result.message || 'Kode rental tidak valid.';
+      return;
+    }
+
+    // Simpan data sesi untuk halaman confirmation
+    sessionStorage.setItem(
+      'rentalSession',
+      JSON.stringify(result.data)
+    );
+
+    // Kalau kode benar
+    router.push('/rental/confirmation');
+
+  } catch (error) {
+    console.error(error);
+    errorMessage.value = 'Tidak dapat terhubung ke server.';
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
 
 <template>
@@ -77,18 +133,26 @@ import { Gamepad2, Ticket } from 'lucide-vue-next';
 
           <input
             id="rental-code"
+            v-model="rentalCode"
             type="text"
             placeholder="Contoh: PC-A12-458"
             class="mt-2 w-full rounded-xl border border-slate-200 bg-[#F6F4EB]/40 px-4 py-3 text-center font-medium tracking-widest text-slate-700 outline-none transition placeholder:tracking-normal placeholder:text-slate-400 focus:border-[#4682A9] focus:ring-4 focus:ring-[#91C8E4]/30"
           />
 
-          <RouterLink
-          to="/rental/confirmation"
-            class="mt-5 flex items-center justify-center w-full rounded-xl bg-[#4682A9] py-3.5 text-sm font-semibold text-white transition hover:bg-[#749BC2]"
+          <button
+            @click="submitCode"
+            type="button"
+            :disabled="loading"
+            class="mt-5 flex w-full items-center justify-center rounded-xl bg-[#4682A9] py-3.5 text-sm font-semibold text-white transition hover:bg-[#749BC2] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Lanjutkan
-          </RouterLink
+            {{ loading ? 'Memeriksa...' : 'Lanjutkan' }}
+          </button>
+          <p
+            v-if="errorMessage"
+            class="mt-3 text-center text-sm text-red-500"
           >
+            {{ errorMessage }}
+          </p>
 
         </div>
 
