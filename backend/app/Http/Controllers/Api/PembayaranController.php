@@ -80,4 +80,23 @@ class PembayaranController extends Controller
             return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
+    public function destroy($id)
+    {
+        try {
+            $pembayaran = Pembayaran::find($id);
+            if (! $pembayaran) {
+                return response()->json(['status' => false, 'message' => 'data pembayaran tidak ada'], 404);
+            }
+
+            $pembayaran->delete();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'data pembayaran berhasil dihapus',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
 }

@@ -72,4 +72,23 @@ class PelangganController extends Controller
             return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
+    public function destroy($id)
+    {
+        try {
+            $pelanggan = Pelanggan::find($id);
+            if (! $pelanggan) {
+                return response()->json(['status' => false, 'message' => 'data pelanggan tidak ada'], 404);
+            }
+
+            $pelanggan->delete();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'data pelanggan berhasil dihapus',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
 }

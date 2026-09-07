@@ -72,4 +72,23 @@ class JenisPerangkatController extends Controller
             return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
+    public function destroy($id)
+    {
+        try {
+            $jenis_perangkat = Jenis_perangkat::find($id);
+            if (! $jenis_perangkat) {
+                return response()->json(['status' => false, 'message' => 'data jenis perangkat tidak ada'], 404);
+            }
+
+            $jenis_perangkat->delete();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'data jenis perangkat berhasil dihapus',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
 }
