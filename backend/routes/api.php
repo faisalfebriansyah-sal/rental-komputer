@@ -45,4 +45,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sesi_rental/{id}', [Sesi_rentalController::class, 'show']);
     Route::put('/sesi_rental/{id}', [Sesi_rentalController::class, 'update']);
     Route::delete('/sesi_rental/{id}', [Sesi_rentalController::class, 'destroy']);
+
 });
+
+Route::post('/rental/verify-code', [Sesi_rentalController::class, 'verifyCode']);
+Route::post('/rental/start-session/{id}', [Sesi_rentalController::class, 'startSession']);
+Route::post('/rental/finish-session/{id}', [Sesi_rentalController::class, 'finishSession']);
+Route::get('/rental/session/{id}', [Sesi_rentalController::class, 'getRentalSession']);
