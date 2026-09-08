@@ -9,7 +9,12 @@ import {
   Settings,
   LogOut,
   Gamepad2,
-  User2
+  User2,
+  Icon,
+  MonitorCheck,
+  MonitorPlay,
+  MonitorCheckIcon,
+  MonitorCloudIcon
 } from "lucide-vue-next";
 
 
@@ -36,6 +41,11 @@ const menuItems = [
     name: "Perangkat",
     icon: Monitor,
     path: "/admin/perangkat",
+  },
+  {
+    name: "JenisPerangkat",
+    icon: MonitorCloudIcon,
+    path: "/admin/jenis-perangkat"
   },
   {
     name: "Rental",
@@ -127,7 +137,7 @@ onMounted(() => {
 
       <div>
         <p class="text-sm font-bold">
-          RENTAL PC & PS
+          Play Point - Admin
         </p>
 
         <p class="text-xs text-white/60">

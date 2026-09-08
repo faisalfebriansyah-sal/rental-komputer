@@ -61,6 +61,13 @@ const router = createRouter({
             component: () => import("../view/admin/Perangkat.vue")
         },
         {
+            
+            path: "/admin/jenis-perangkat",
+            name: 'AdminJenisPerangkat',
+            component: () => import("../view/admin/JenisPerangkat.vue")
+        
+        },
+        {
             path: '/admin/rental',
             name: 'AdminRental',
             component: () => import("../view/admin/Rentals.vue")
