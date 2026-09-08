@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('pembayarans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sesi_id')->constrained('sesi_rentals')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('sesi_id')->constrained('sesi_rentals')->cascadeOnUpdate()->restrictOnDelete();
             $table->decimal('jumlah', 10, 2);
             $table->string('status');
             $table->dateTime('waktu_bayar')->nullable();
