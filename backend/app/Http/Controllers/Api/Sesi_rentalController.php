@@ -6,6 +6,7 @@ use App\Events\RentalUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Sesi_rental;
 use App\Models\Perangkat;
+
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -68,6 +69,10 @@ class Sesi_rentalController extends Controller
                          'message' => 'Perangkat sedang maintenance.'
                     ], 422);
                }
+
+
+
+
 
                // Pastikan jenis perangkat tersedia
                if (!$perangkat->jenisPerangkat) {

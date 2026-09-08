@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pembayaran;
+use App\Models\Sesi_rental;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -12,14 +13,22 @@ class PembayaranController extends Controller
     public function index()
     {
         try {
-            $pembayaran = Pembayaran::latest()->get();
+            $pembayaran = Pembayaran::with([
+                'sesiRental.pelanggan',
+                'sesiRental.perangkat.jenisPerangkat'
+            ])->latest()->get();
+
             return response()->json([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Data Pembayaran berhasil diambil',
-                'data'    => $pembayaran,
+                'data' => $pembayaran,
             ], 200);
+
         } catch (Exception $e) {
-            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -27,29 +36,56 @@ class PembayaranController extends Controller
     {
         try {
             $request->validate([
-                'sesi_id'  => 'required|string',
-                'jumlah' => 'required|numeric',
-                'status' => 'required|string',
-                'waktu_bayar' => 'nullable|date',
+                'sesi_id' => 'required|exists:sesi_rentals,id',
             ]);
 
+            $sesiRental = \App\Models\Sesi_rental::find($request->sesi_id);
+
+            if (!$sesiRental) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Sesi rental tidak ditemukan.'
+                ], 404);
+            }
+
+            if ($sesiRental->status !== 'menunggu') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Pembayaran hanya dapat dilakukan untuk sesi yang menunggu.'
+                ], 422);
+            }
+
+            $sudahBayar = Pembayaran::where('sesi_id', $sesiRental->id)
+                ->where('status', 'lunas')
+                ->exists();
+
+            if ($sudahBayar) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Sesi rental ini sudah dibayar.'
+                ], 422);
+            }
+
             $pembayaran = Pembayaran::create([
-                'sesi_id'  => $request->sesi_id,
-                'jumlah' => $request->jumlah,
-                'status' => $request->status,
-                'waktu_bayar' => $request->waktu_bayar,
+                'sesi_id' => $sesiRental->id,
+                'jumlah' => $sesiRental->harga,
+                'status' => 'lunas',
+                'waktu_bayar' => now(),
             ]);
 
             return response()->json([
-                'status'  => true,
-                'message' => 'Data Pembayaran berhasil ditambahkan',
-                'data'    => $pembayaran,
+                'status' => true,
+                'message' => 'Pembayaran cash berhasil dicatat.',
+                'data' => $pembayaran
             ], 201);
+
         } catch (Exception $e) {
-            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
-
      public function update(Request $request, $id)
     {
         try {
