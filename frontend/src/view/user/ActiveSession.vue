@@ -129,7 +129,7 @@ const finishSession = async () => {
     console.error(error);
   }
 };
-
+ 
 onMounted(async () => {
   const berhasil = await loadRentalSession();
 
@@ -138,7 +138,7 @@ onMounted(async () => {
   }
 
   updateTimer();
-
+  
   timer = setInterval(updateTimer, 1000);
 });
 
