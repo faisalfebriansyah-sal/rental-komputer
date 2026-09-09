@@ -354,29 +354,29 @@ onUnmounted(() => {
 
                     </div>
 
-                  <!-- Filter -->
+                    <!-- Filter -->
                     <div
                          class="mt-8 flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
 
                          <div class="flex flex-wrap gap-2">
 
                               <button @click="setFilter('semua')" :class="activeFilter === 'semua'
-                                        ? 'bg-[#4682A9] text-white'
-                                        : 'text-gray-500 hover:bg-gray-100'
+                                   ? 'bg-[#4682A9] text-white'
+                                   : 'text-gray-500 hover:bg-gray-100'
                                    " class="rounded-lg px-4 py-2 text-sm font-medium transition">
                                    Semua
                               </button>
 
                               <button @click="setFilter('aktif')" :class="activeFilter === 'aktif'
-                                        ? 'bg-[#4682A9] text-white'
-                                        : 'text-gray-500 hover:bg-gray-100'
+                                   ? 'bg-[#4682A9] text-white'
+                                   : 'text-gray-500 hover:bg-gray-100'
                                    " class="rounded-lg px-4 py-2 text-sm font-medium transition">
                                    Aktif
                               </button>
 
                               <button @click="setFilter('selesai')" :class="activeFilter === 'selesai'
-                                        ? 'bg-[#4682A9] text-white'
-                                        : 'text-gray-500 hover:bg-gray-100'
+                                   ? 'bg-[#4682A9] text-white'
+                                   : 'text-gray-500 hover:bg-gray-100'
                                    " class="rounded-lg px-4 py-2 text-sm font-medium transition">
                                    Selesai
                               </button>
@@ -479,7 +479,7 @@ onUnmounted(() => {
                                              <!-- Perangkat -->
                                              <td class="px-6 py-5 text-gray-600">
                                                   {{ rental.perangkat?.name || "-" }}
-                                                  
+
                                                   {{ rental.perangkat?.jenis_perangkat?.name || "-" }}
                                              </td>
 
@@ -519,9 +519,9 @@ onUnmounted(() => {
                                                        {{
                                                             rental.status === "aktif"
                                                                  ? "Aktif"
-                                                       : rental.status === "selesai"
-                                                       ? "Selesai"
-                                                       : "Menunggu"
+                                                                 : rental.status === "selesai"
+                                                                      ? "Selesai"
+                                                                      : "Menunggu"
                                                        }}
                                                   </span>
 

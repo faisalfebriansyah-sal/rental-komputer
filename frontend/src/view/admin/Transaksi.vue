@@ -478,7 +478,7 @@ onMounted(() => {
                     {{ item.kode_sesi }}
                   </td>
 
-                 <!-- Pembayar -->
+                  <!-- Pembayar -->
                   <td class="px-6 py-5 text-gray-600">
                     {{ item.pelanggan?.name || "-" }}
                   </td>
