@@ -6,6 +6,7 @@ use App\Events\RentalUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Sesi_rental;
 use App\Models\Perangkat;
+use App\Models\Pembayaran;
 
 use Exception;
 use Illuminate\Http\Request;
@@ -70,10 +71,6 @@ class Sesi_rentalController extends Controller
                     ], 422);
                }
 
-
-
-
-
                // Pastikan jenis perangkat tersedia
                if (!$perangkat->jenisPerangkat) {
                     return response()->json([
@@ -90,7 +87,7 @@ class Sesi_rentalController extends Controller
 
                // Generate kode rental
                do {
-                    $kodeSesi = 'PC-' . strtoupper(Str::random(8));
+                    $kodeSesi = (string) random_int(100000, 999999);
                } while (Sesi_rental::where('kode_sesi', $kodeSesi)->exists());
 
                // Buat sesi rental
@@ -100,7 +97,7 @@ class Sesi_rentalController extends Controller
                     'kode_sesi' => $kodeSesi,
                     'durasi' => $request->durasi,
                     'harga' => $harga,
-                    'status' => 'menunggu',
+                    'status' => 'belum_main',
                     'waktu_mulai' => null,
                     'waktu_selesai' => null,
                ]);
@@ -152,6 +149,9 @@ class Sesi_rentalController extends Controller
           }
      }
 
+     // Fungsi memverifikasi kode sesi rental
+
+     // Fungsi memverifikasi kode sesi rental
      public function verifyCode(Request $request)
      {
           try {
@@ -173,9 +173,21 @@ class Sesi_rentalController extends Controller
                     ], 404);
                }
 
+               // Cek apakah pembayaran untuk sesi ini sudah lunas
+               $pembayaran = Pembayaran::where('sesi_id', $sesirental->id)
+                    ->where('status', 'lunas')    
+                    ->first();
+
+               if (!$pembayaran) {
+                    return response()->json([
+                         'status' => false,
+                         'message' => 'Pembayaran belum dikonfirmasi. Silakan lakukan pembayaran terlebih dahulu.'
+                    ], 422);
+               }
+
                return response()->json([
                     'status' => true,
-                    'message' => 'Kode rental valid.',
+                    'message' => 'Kode rental valid dan pembayaran sudah dikonfirmasi.',
                     'data' => $sesirental
                ], 200);
 
@@ -186,6 +198,8 @@ class Sesi_rentalController extends Controller
                ], 500);
           }
      }
+
+     // Fungsi update status menjadi aktif, waktu mulai, waktu selesai
 
      public function startSession($id)
      {
@@ -199,7 +213,7 @@ class Sesi_rentalController extends Controller
                     ], 404);
                }
 
-               if ($sesirental->status !== 'menunggu') {
+               if ($sesirental->status !== 'belum_main') {
                     return response()->json([
                          'status' => false,
                          'message' => 'Sesi rental tidak dapat dimulai.'
@@ -239,7 +253,7 @@ class Sesi_rentalController extends Controller
 
                // Aktifkan sesi rental
                $sesirental->update([
-                    'status' => 'aktif',
+                    'status' => 'sedang_main',
                     'waktu_mulai' => $waktuMulai,
                     'waktu_selesai' => $waktuSelesai,
                ]);
@@ -268,6 +282,8 @@ class Sesi_rentalController extends Controller
           }
      }
 
+
+     // Fungsi update status menjadi selesai dan waktu selesai
      public function finishSession($id)
      {
           try {
@@ -280,7 +296,7 @@ class Sesi_rentalController extends Controller
                     ], 404);
                }
 
-               if ($sesirental->status !== 'aktif') {
+               if ($sesirental->status !== 'sedang_main') {
                     return response()->json([
                          'status' => false,
                          'message' => 'Sesi rental tidak sedang aktif.'
@@ -292,6 +308,7 @@ class Sesi_rentalController extends Controller
                // Selesaikan sesi rental
                $sesirental->update([
                     'status' => 'selesai',
+                    'waktu_selesai' => now(),
                ]);
 
                // Kembalikan PC menjadi tersedia
@@ -320,6 +337,8 @@ class Sesi_rentalController extends Controller
           }
      }
 
+     // fungsi mendapatkan sesi rental yang sedang barjalan 
+     // agar tidak kembali ke halaman masukan kode
      public function getRentalSession($id)
      {
           try {
@@ -338,6 +357,34 @@ class Sesi_rentalController extends Controller
                return response()->json([
                     'status' => true,
                     'message' => 'Data sesi rental berhasil diambil.',
+                    'data' => $sesirental
+               ], 200);
+
+          } catch (Exception $e) {
+               return response()->json([
+                    'status' => false,
+                    'message' => $e->getMessage()
+               ], 500);
+          }
+     }
+
+     // fungsi mendapatkan data sesi yang sedang aktif atau digunakan
+     public function getActiveSession($perangkatId)
+     {
+          try {
+               $sesirental = Sesi_rental::with([
+                    'pelanggan',
+                    'perangkat.jenisPerangkat'
+               ])
+                    ->where('perangkat_id', $perangkatId)
+                    ->where('status', 'sedang_main')
+                    ->first();
+
+               return response()->json([
+                    'status' => true,
+                    'message' => $sesirental
+                         ? 'Sesi aktif ditemukan.'
+                         : 'Tidak ada sesi aktif.',
                     'data' => $sesirental
                ], 200);
 

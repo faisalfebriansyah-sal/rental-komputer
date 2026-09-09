@@ -48,7 +48,7 @@ class PembayaranController extends Controller
                 ], 404);
             }
 
-            if ($sesiRental->status !== 'menunggu') {
+            if ($sesiRental->status !== 'belum_main') {
                 return response()->json([
                     'status' => false,
                     'message' => 'Pembayaran hanya dapat dilakukan untuk sesi yang menunggu.'
@@ -69,8 +69,8 @@ class PembayaranController extends Controller
             $pembayaran = Pembayaran::create([
                 'sesi_id' => $sesiRental->id,
                 'jumlah' => $sesiRental->harga,
-                'status' => 'lunas',
-                'waktu_bayar' => now(),
+                'status' => 'menunggu',
+                'waktu_bayar' => null,
             ]);
 
             return response()->json([
@@ -95,7 +95,7 @@ class PembayaranController extends Controller
             }
 
             $request->validate([
-                'sesi_id'  => 'required|string',
+                'sesi_id' => 'required|exists:sesi_rentals,id',
                 'jumlah' => 'required|numeric',
                 'status' => 'required|string',
                 'waktu_bayar' => 'nullable|date',
@@ -114,6 +114,43 @@ class PembayaranController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function konfirmasi($id)
+    {
+        try {
+            $pembayaran = Pembayaran::find($id);
+
+            if (!$pembayaran) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data pembayaran tidak ditemukan.'
+                ], 404);
+            }
+
+            if ($pembayaran->status === 'lunas') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Pembayaran ini sudah dikonfirmasi.'
+                ], 422);
+            }
+
+            $pembayaran->status = 'lunas';
+            $pembayaran->waktu_bayar = now();
+            $pembayaran->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Pembayaran berhasil dikonfirmasi.',
+                'data' => $pembayaran
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }
