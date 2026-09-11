@@ -589,8 +589,20 @@ onUnmounted(() => {
                                                   </p>
                                              </div>
 
-                                             <span :class="statusClass(rental.status)" class="text-xs">
-                                                  {{ formatStatus(rental.status) }}
+                                             <span :class="rental.status === 'sedang_main'
+                                                  ? 'bg-green-100 text-green-500'
+                                                  
+                                                  : rental.status === 'selesai'
+                                                       ? 'bg-gray-100 text-gray-600'
+                                                       : 'bg-orange-100 text-orange-600'"
+                                                  class="text-xs px-3 py-1 rounded-full">
+                                                  {{
+                                                       rental.status === "sedang_main"
+                                                            ? "Sedang Main"
+                                                            : rental.status === "selesai"
+                                                                 ? "Selesai"
+                                                                 : "Belum Main"
+                                                  }}
                                              </span>
 
                                         </div>
