@@ -320,38 +320,47 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Summary -->
-                    <div class="mt-8 grid gap-5 sm:grid-cols-3">
-
+                    <!-- Loading Skeleton -->
+                    <div v-if="loading" class="mt-8 grid gap-5 sm:grid-cols-3 animate-pulse">
+                         <div class="rounded-2xl bg-gray-200 p-5 shadow-sm">
+                              <div class="h-4 w-24 bg-gray-300 rounded mb-2"></div>
+                              <div class="h-6 w-16 bg-gray-300 rounded"></div>
+                         </div>
+                         <div class="rounded-2xl bg-gray-200 p-5 shadow-sm">
+                              <div class="h-4 w-28 bg-gray-300 rounded mb-2"></div>
+                              <div class="h-6 w-16 bg-gray-300 rounded"></div>
+                         </div>
+                         <div class="rounded-2xl bg-gray-200 p-5 shadow-sm">
+                              <div class="h-4 w-32 bg-gray-300 rounded mb-2"></div>
+                              <div class="h-6 w-20 bg-gray-300 rounded"></div>
+                         </div>
+                    </div>
+                    <!-- Actual Summary -->
+                    <div v-else class="mt-8 grid gap-5 sm:grid-cols-3">
                          <div class="rounded-2xl bg-white p-5 shadow-sm">
                               <p class="text-sm text-gray-500">
                                    Rental Aktif
                               </p>
-
                               <p class="mt-3 text-3xl font-bold text-gray-800">
                                    {{ rentalAktif }}
                               </p>
                          </div>
-
                          <div class="rounded-2xl bg-white p-5 shadow-sm">
                               <p class="text-sm text-gray-500">
                                    Selesai Hari Ini
                               </p>
-
                               <p class="mt-3 text-3xl font-bold text-gray-800">
                                    {{ selesaiHariIni }}
                               </p>
                          </div>
-
                          <div class="rounded-2xl bg-white p-5 shadow-sm">
                               <p class="text-sm text-gray-500">
                                    Total Pendapatan
                               </p>
-
                               <p class="mt-3 text-2xl font-bold text-gray-800">
                                    Rp{{ formatRupiah(totalPendapatan) }}
                               </p>
                          </div>
-
                     </div>
 
                     <!-- Filter -->
@@ -514,14 +523,14 @@ onUnmounted(() => {
                                                             rental.status === 'selesai',
 
                                                        'bg-yellow-100 text-yellow-700':
-                                                            rental.status === 'menunggu'
+                                                            rental.status === 'belum_main'
                                                   }">
                                                        {{
                                                             rental.status === "aktif"
                                                                  ? "Aktif"
                                                                  : rental.status === "selesai"
                                                                       ? "Selesai"
-                                                                      : "Menunggu"
+                                                                      : "Belum Main"
                                                        }}
                                                   </span>
 
