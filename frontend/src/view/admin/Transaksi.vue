@@ -65,9 +65,6 @@ const getData = async () => {
     loading.value = false;
   }
 };
-onMounted(() => {
-  getData();
-});
 
 /*
 |--------------------------------------------------------------------------
@@ -291,6 +288,53 @@ const bayarCash = async (rental) => {
   }
 };
 
+const konfirmasiPembayaran = async (pembayaranId) => {
+  if (processingId.value) {
+    return;
+  }
+
+  const confirmed = confirm(
+    "Apakah pembayaran cash ini sudah diterima dan ingin dikonfirmasi?"
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  processingId.value = pembayaranId;
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/pembayaran/${pembayaranId}/konfirmasi`,
+      {
+        method: "PATCH",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      alert(result.message || "Gagal mengkonfirmasi pembayaran.");
+      return;
+    }
+
+    alert(result.message || "Pembayaran berhasil dikonfirmasi.");
+
+    await getData();
+  } catch (error) {
+    console.error(error);
+    alert("Tidak dapat terhubung ke server.");
+  } finally {
+    processingId.value = null;
+  }
+};
+
 onMounted(() => {
   getData();
 });
@@ -328,38 +372,47 @@ onMounted(() => {
         </div>
 
         <!-- Summary -->
-        <div class="mt-8 grid gap-5 sm:grid-cols-3">
-
+        <!-- Loading Skeleton -->
+        <div v-if="loading" class="mt-8 grid gap-5 sm:grid-cols-3 animate-pulse">
+          <div class="rounded-2xl bg-gray-200 p-6 shadow-sm">
+            <div class="h-4 w-24 bg-gray-300 rounded mb-2"></div>
+            <div class="h-6 w-16 bg-gray-300 rounded"></div>
+          </div>
+          <div class="rounded-2xl bg-gray-200 p-6 shadow-sm">
+            <div class="h-4 w-28 bg-gray-300 rounded mb-2"></div>
+            <div class="h-6 w-20 bg-gray-300 rounded"></div>
+          </div>
+          <div class="rounded-2xl bg-gray-200 p-6 shadow-sm">
+            <div class="h-4 w-32 bg-gray-300 rounded mb-2"></div>
+            <div class="h-6 w-20 bg-gray-300 rounded"></div>
+          </div>
+        </div>
+        <!-- Actual Summary -->
+        <div v-else class="mt-8 grid gap-5 sm:grid-cols-3">
           <div class="rounded-2xl bg-white p-6 shadow-sm">
             <p class="text-sm text-gray-500">
               Transaksi Hari Ini
             </p>
-
             <p class="mt-3 text-3xl font-bold text-gray-800">
               {{ transaksiHariIni }}
             </p>
           </div>
-
           <div class="rounded-2xl bg-white p-6 shadow-sm">
             <p class="text-sm text-gray-500">
               Pendapatan Hari Ini
             </p>
-
             <p class="mt-3 text-2xl font-bold text-gray-800">
               Rp{{ formatRupiah(pendapatanHariIni) }}
             </p>
           </div>
-
           <div class="rounded-2xl bg-white p-6 shadow-sm">
             <p class="text-sm text-gray-500">
               Pendapatan Bulan Ini
             </p>
-
             <p class="mt-3 text-2xl font-bold text-gray-800">
               Rp{{ formatRupiah(pendapatanBulanIni) }}
             </p>
           </div>
-
         </div>
 
         <!-- Filter -->
@@ -549,20 +602,29 @@ onMounted(() => {
                   <!-- Aksi -->
                   <td class="px-6 py-5">
 
-                    <button v-if="
-                      !item.pembayaran ||
-                      item.pembayaran.status !== 'lunas'
-                    " @click="bayarCash(item)" :disabled="processingId === item.id
-                      "
+                    <!-- Belum ada pembayaran -->
+                    <button v-if="!item.pembayaran" @click="bayarCash(item)" :disabled="processingId === item.id"
                       class="rounded-lg bg-[#4682A9] px-4 py-2 text-xs font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
                       {{
                         processingId === item.id
                           ? "Memproses..."
-                          : "Bayar Cash"
+                      : "Bayar Cash"
                       }}
                     </button>
 
-                    <span v-else class="text-xs font-medium text-green-600">
+                    <!-- Pembayaran sudah dicatat, menunggu konfirmasi admin -->
+                    <button v-else-if="item.pembayaran.status === 'menunggu'"
+                      @click="konfirmasiPembayaran(item.pembayaran.id)" :disabled="processingId === item.pembayaran.id"
+                      class="rounded-lg bg-green-600 px-4 py-2 text-xs font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
+                      {{
+                        processingId === item.pembayaran.id
+                          ? "Memproses..."
+                      : "Konfirmasi"
+                      }}
+                    </button>
+
+                    <!-- Pembayaran sudah lunas -->
+                    <span v-else-if="item.pembayaran.status === 'lunas'" class="text-xs font-medium text-green-600">
                       Sudah Dibayar
                     </span>
 

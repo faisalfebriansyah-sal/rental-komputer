@@ -237,8 +237,8 @@ const formatStatus = (status) => {
           return "Selesai";
      }
 
-     if (status === "menunggu") {
-          return "Menunggu";
+     if (status === "belum_main") {
+          return "Belum Main";
      }
 
      return status;
