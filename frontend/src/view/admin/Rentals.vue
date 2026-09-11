@@ -143,7 +143,7 @@ const filteredRentals = computed(() => {
 
 const rentalAktif = computed(() => {
      return rentals.value.filter(
-          (rental) => rental.status === "aktif"
+          (rental) => rental.status === "sedang_main"
      ).length;
 });
 
@@ -517,7 +517,7 @@ onUnmounted(() => {
 
                                                   <span class="rounded-full px-3 py-1 text-xs font-medium" :class="{
                                                        'bg-green-100 text-green-700':
-                                                            rental.status === 'aktif',
+                                                            rental.status === 'sedang_main',
 
                                                        'bg-gray-100 text-gray-600':
                                                             rental.status === 'selesai',
@@ -526,8 +526,8 @@ onUnmounted(() => {
                                                             rental.status === 'belum_main'
                                                   }">
                                                        {{
-                                                            rental.status === "aktif"
-                                                                 ? "Aktif"
+                                                            rental.status === "sedang_main"
+                                                                 ? "Sedang Main"
                                                                  : rental.status === "selesai"
                                                                       ? "Selesai"
                                                                       : "Belum Main"
