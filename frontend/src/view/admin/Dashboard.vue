@@ -21,7 +21,7 @@ let timer = null;
 
 const getSisaDurasi = (rental) => {
      if (
-          rental.status !== "aktif" ||
+          rental.status !== "sedang_main" ||
           !rental.waktu_mulai ||
           !rental.durasi
      ) {
@@ -46,12 +46,13 @@ const getSisaDurasi = (rental) => {
 
      const jam = Math.floor(totalMenit / 60);
      const menit = totalMenit % 60;
+     const detik = Math.floor((sisaMs % (1000 * 60)) / 1000);
 
      if (jam > 0) {
-          return `${jam} jam ${menit} menit`;
+          return `${jam} jam ${menit} menit ${detik} detik`;
      }
 
-     return `${menit} menit`;
+     return `${menit} menit ${detik} detik`;;
 };
 
 const loading = ref(true);
@@ -150,7 +151,7 @@ const perangkatTersedia = computed(() => {
 
 const rentalAktif = computed(() => {
      return rentals.value.filter(
-          (item) => item.status === "aktif"
+          (item) => item.status === "sedang_main"
      ).length;
 });
 
@@ -158,7 +159,7 @@ const getRentalAktif = (perangkatId) => {
      return rentals.value.find(
           (rental) =>
                rental.perangkat_id === perangkatId &&
-               rental.status === "aktif"
+               rental.status === "sedang_main"
      );
 };
 
@@ -467,6 +468,7 @@ onUnmounted(() => {
                                                   <th class="pb-4 font-medium">Perangkat</th>
                                                   <th class="pb-4 font-medium">Jenis</th>
                                                   <th class="pb-4 font-medium">Status</th>
+                                                  <th class="pb-4 font-medium">Durasi</th>
                                              </tr>
                                         </thead>
                                         <tbody class="text-sm">
@@ -485,7 +487,11 @@ onUnmounted(() => {
                                                        </td>
 
                                                        <td class="py-4">
-                                                            <div class="h-4 w-32 rounded bg-gray-200"></div>
+                                                            <div class="h-4 w-20 rounded bg-gray-200"></div>
+                                                       </td>
+
+                                                       <td class="py-4">
+                                                            <div class="h-4 w-28 rounded bg-gray-200"></div>
                                                        </td>
                                                   </tr>
 
@@ -513,16 +519,10 @@ onUnmounted(() => {
                                                                       Digunakan
                                                                  </div>
 
-                                                                 <div v-if="getRentalAktif(item.id)"
-                                                                      class="text-sm text-gray-500">
-                                                                      {{ getSisaDurasi(getRentalAktif(item.id)) }}
-                                                                      tersisa
-                                                                 </div>
-
                                                             </template>
 
                                                             <span v-else-if="item.status === 'tersedia'"
-                                                                 class="font-medium text-yellow-600">
+                                                                 class="font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-lg">
                                                                  Tersedia
                                                             </span>
 
@@ -533,10 +533,19 @@ onUnmounted(() => {
 
                                                        </td>
 
+                                                       <td class="py-4 text-sm text-gray-500">
+                                                            <template
+                                                                 v-if="item.status === 'digunakan' && getRentalAktif(item.id)">
+                                                                 {{ getSisaDurasi(getRentalAktif(item.id)) }}
+                                                            </template>
+
+                                                            <span v-else>-</span>
+                                                       </td>
+
                                                   </tr>
 
                                                   <tr v-if="perangkat.length === 0">
-                                                       <td colspan="3" class="py-8 text-center text-sm text-gray-400">
+                                                       <td colspan="4" class="py-8 text-center text-sm text-gray-400">
                                                             Belum ada perangkat.
                                                        </td>
                                                   </tr>
@@ -591,7 +600,7 @@ onUnmounted(() => {
 
                                              <span :class="rental.status === 'sedang_main'
                                                   ? 'bg-green-100 text-green-500'
-                                                  
+
                                                   : rental.status === 'selesai'
                                                        ? 'bg-gray-100 text-gray-600'
                                                        : 'bg-orange-100 text-orange-600'"

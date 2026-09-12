@@ -12,6 +12,10 @@ const showModal = ref(false);
 
 const pelanggan = ref([]);
 const perangkat = ref([]);
+const pembayaran =  ref([]);
+
+const customerSearch = ref('');
+const showCustomerDropdown = ref(false);
 
 const form = ref({
      pelanggan_id: "",
@@ -124,7 +128,53 @@ const getPerangkatTersedia = async () => {
      }
 };
 
+// tambahin fetch function
+const getPembayaran = async () => {
+     try {
+          const token = localStorage.getItem("token");
 
+          const response = await fetch(
+               "http://127.0.0.1:8000/api/pembayaran",
+               {
+                    headers: {
+                         Accept: "application/json",
+                         Authorization: `Bearer ${token}`,
+                    },
+               }
+          );
+
+          const result = await response.json();
+
+          if (!response.ok) {
+               console.error(result.message);
+               return;
+          }
+
+          pembayaran.value = result.data || [];
+     } catch (error) {
+          console.error(error);
+     }
+};
+
+const filteredCustomers = computed(() => {
+     const keyword = customerSearch.value.toLowerCase().trim();
+
+     if (!keyword) {
+          return pelanggan.value;
+     }
+
+     return pelanggan.value.filter((customer) =>
+          String(customer.name || "")
+               .toLowerCase()
+               .includes(keyword)
+     );
+});
+
+const handleCustomerInput = () => {
+     // Kalau user mengetik ulang, pilihan pelanggan sebelumnya dibatalkan
+     form.value.pelanggan_id = "";
+     showCustomerDropdown.value = true;
+};
 
 const filteredRentals = computed(() => {
      return rentals.value.filter((rental) => {
@@ -148,7 +198,14 @@ const rentalAktif = computed(() => {
 });
 
 const selesaiHariIni = computed(() => {
-     const today = new Date().toISOString().split("T")[0];
+     const now = new Date();
+
+     const today =
+          now.getFullYear() +
+          "-" +
+          String(now.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(now.getDate()).padStart(2, "0");
 
      return rentals.value.filter((rental) => {
           if (rental.status !== "selesai") {
@@ -164,9 +221,9 @@ const selesaiHariIni = computed(() => {
 });
 
 const totalPendapatan = computed(() => {
-     return rentals.value.reduce((total, rental) => {
-          return total + Number(rental.harga || 0);
-     }, 0);
+     return pembayaran.value
+          .filter((item) => item.status === "lunas")
+          .reduce((total, item) => total + Number(item.jumlah || 0), 0);
 });
 
 const formatRupiah = (value) => {
@@ -207,6 +264,8 @@ const openModal = async () => {
           durasi: 1,
      };
 
+     customerSearch.value = "";
+     showCustomerDropdown.value = false;
      formError.value = "";
 
      await Promise.all([
@@ -271,12 +330,25 @@ const createRental = async () => {
      }
 };
 
+const selectedCustomer = computed(() => {
+     return pelanggan.value.find(
+          (customer) =>
+               String(customer.id) === String(form.value.pelanggan_id)
+     );
+});
+
+const selectCustomer = (customer) => {
+     form.value.pelanggan_id = customer.id;
+     customerSearch.value = customer.name;
+     showCustomerDropdown.value = false;
+};
 onMounted(() => {
      getRentals();
+     getPembayaran();
 
-     // Dengarkan broadcast real-time dari Laravel Reverb
      echo.channel("rentals").listen(".rental.updated", () => {
           getRentals(true);
+          getPembayaran(); // refresh juga biar total pendapatan ikut update
      });
 });
 
@@ -376,10 +448,10 @@ onUnmounted(() => {
                                    Semua
                               </button>
 
-                              <button @click="setFilter('aktif')" :class="activeFilter === 'aktif'
+                              <button @click="setFilter('sedang_main')" :class="activeFilter === 'sedang_main'
                                    ? 'bg-[#4682A9] text-white'
-                                   : 'text-gray-500 hover:bg-gray-100'
-                                   " class="rounded-lg px-4 py-2 text-sm font-medium transition">
+                                   : 'text-gray-500 hover:bg-gray-100'"
+                                   class="rounded-lg px-4 py-2 text-sm font-medium transition">
                                    Aktif
                               </button>
 
@@ -444,12 +516,17 @@ onUnmounted(() => {
 
                                    <tbody class="text-sm">
 
-                                        <!-- Loading -->
-                                        <tr v-if="loading">
-                                             <td colspan="8" class="px-6 py-10 text-center text-gray-500">
-                                                  Memuat data rental...
-                                             </td>
-                                        </tr>
+                                        <!-- Loading skeleton -->
+                                        <template v-if="loading">
+                                             <tr v-for="index in 5" :key="index"
+                                                  class="animate-pulse border-b border-gray-100 last:border-0">
+                                                  <td v-for="column in 8" :key="column" class="px-6 py-5">
+                                                       <div class="h-4 rounded bg-gray-200"
+                                                            :class="column === 1 ? 'w-24' : column === 8 ? 'w-20' : 'w-16'">
+                                                       </div>
+                                                  </td>
+                                             </tr>
+                                        </template>
 
                                         <!-- Error -->
                                         <tr v-else-if="errorMessage">
@@ -582,20 +659,38 @@ onUnmounted(() => {
 
                     <!-- Pelanggan -->
                     <div>
-                         <label class="mb-2 block text-sm font-medium text-gray-700">
-                              Username Pelanggan
-                         </label>
+                         <div class="relative">
+                              <label class="mb-2 block text-sm font-medium text-gray-700">
+                                   Username Pelanggan
+                              </label>
 
-                         <select v-model="form.pelanggan_id"
-                              class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#4682A9] focus:ring-4 focus:ring-[#91C8E4]/20">
-                              <option value="">
-                                   Pilih pelanggan
-                              </option>
+                              <!-- Input search -->
+                              <input v-model="customerSearch" type="text" placeholder="Cari nama pelanggan..."
+                                   class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#4682A9] focus:ring-4 focus:ring-[#91C8E4]/20"
+                                   @focus="showCustomerDropdown = true" @input="handleCustomerInput" />
 
-                              <option v-for="item in pelanggan" :key="item.id" :value="item.id">
-                                   {{ item.name }}
-                              </option>
-                         </select>
+                              <!-- Nama pelanggan yang dipilih -->
+                              <p v-if="selectedCustomer" class="mt-2 text-xs text-gray-500">
+                                   Terpilih:
+                                   <span class="font-semibold text-[#4682A9]">
+                                        {{ selectedCustomer.name }}
+                                   </span>
+                              </p>
+
+                              <!-- Daftar hasil pencarian -->
+                              <div v-if="showCustomerDropdown"
+                                   class="absolute z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 shadow-lg">
+                                   <button v-for="customer in filteredCustomers" :key="customer.id" type="button"
+                                        class="block w-full rounded-lg px-3 py-2 text-left text-sm text-gray-700 transition hover:bg-[#F6F4EB]"
+                                        @click="selectCustomer(customer)">
+                                        {{ customer.name }}
+                                   </button>
+
+                                   <p v-if="filteredCustomers.length === 0" class="px-3 py-3 text-sm text-gray-500">
+                                        Pelanggan tidak ditemukan.
+                                   </p>
+                              </div>
+                         </div>
                     </div>
 
                     <!-- Perangkat -->

@@ -32,6 +32,7 @@ const updating = ref(false);
 const formError = ref("");
 const saving = ref(false);
 
+
 const getPerangkat = async () => {
   loading.value = true;
   errorMessage.value = "";
@@ -320,9 +321,25 @@ onMounted(() => {
 
         <!-- Device Cards -->
 
-        <!-- Loading -->
-        <div v-if="loading" class="mt-6 text-center text-sm text-gray-500">
-          Memuat data perangkat...
+        <!-- Loading skeleton -->
+        <div v-if="loading" class="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3" aria-label="Memuat data perangkat">
+          <div v-for="index in 6" :key="index" class="animate-pulse rounded-2xl bg-white p-6 shadow-sm">
+            <div class="flex items-start justify-between">
+              <div class="w-full">
+                <div class="h-12 w-12 rounded-xl bg-gray-200"></div>
+                <div class="mt-4 h-5 w-2/3 rounded bg-gray-200"></div>
+                <div class="mt-2 h-3 w-1/2 rounded bg-gray-200"></div>
+                <div class="mt-4 h-4 w-1/3 rounded bg-gray-200"></div>
+
+                <div class="mt-5 flex gap-2">
+                  <div class="h-9 flex-1 rounded-xl bg-gray-200"></div>
+                  <div class="h-9 flex-1 rounded-xl bg-gray-200"></div>
+                </div>
+              </div>
+
+              <div class="ml-4 h-6 w-20 rounded-full bg-gray-200"></div>
+            </div>
+          </div>
         </div>
 
         <!-- Error -->
