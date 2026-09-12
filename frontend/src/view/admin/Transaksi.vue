@@ -14,6 +14,8 @@ const activeFilter = ref("semua");
 const searchQuery = ref("");
 
 const processingId = ref(null);
+const showPaymentModal = ref(false);
+const selectedRental = ref(null);
 
 /*
 |--------------------------------------------------------------------------
@@ -229,16 +231,28 @@ const setFilter = (filter) => {
 | Bayar Cash
 |--------------------------------------------------------------------------
 */
-const bayarCash = async (rental) => {
+const openPaymentModal = (rental) => {
   if (processingId.value) {
     return;
   }
 
-  const confirmed = confirm(
-    `Bayar cash sebesar Rp${formatRupiah(rental.harga)} untuk rental ${rental.kode_sesi}?`
-  );
+  selectedRental.value = rental;
+  showPaymentModal.value = true;
+};
 
-  if (!confirmed) {
+const closePaymentModal = () => {
+  if (processingId.value) {
+    return;
+  }
+
+  showPaymentModal.value = false;
+  selectedRental.value = null;
+};
+
+const bayarCash = async () => {
+  const rental = selectedRental.value;
+
+  if (!rental || processingId.value) {
     return;
   }
 
@@ -247,17 +261,16 @@ const bayarCash = async (rental) => {
   try {
     const token = localStorage.getItem("token");
 
+    // 1. Buat pembayaran
     const response = await fetch(
       "http://127.0.0.1:8000/api/pembayaran",
       {
         method: "POST",
-
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-
         body: JSON.stringify({
           sesi_id: rental.id,
         }),
@@ -267,46 +280,22 @@ const bayarCash = async (rental) => {
     const result = await response.json();
 
     if (!response.ok) {
-      alert(
+      throw new Error(
         result.message || "Gagal mencatat pembayaran."
       );
-      return;
     }
 
-    alert(
-      result.message ||
-      "Pembayaran cash berhasil dicatat."
-    );
+    // 2. Jika backend membuat pembayaran dengan status menunggu,
+    // langsung konfirmasi menjadi lunas
+    const pembayaranId = result.data?.id;
 
-    await getData();
-  } catch (error) {
-    console.error(error);
+    if (!pembayaranId) {
+      throw new Error(
+        "Pembayaran berhasil dibuat, tetapi ID pembayaran tidak ditemukan."
+      );
+    }
 
-    alert("Tidak dapat terhubung ke server.");
-  } finally {
-    processingId.value = null;
-  }
-};
-
-const konfirmasiPembayaran = async (pembayaranId) => {
-  if (processingId.value) {
-    return;
-  }
-
-  const confirmed = confirm(
-    "Apakah pembayaran cash ini sudah diterima dan ingin dikonfirmasi?"
-  );
-
-  if (!confirmed) {
-    return;
-  }
-
-  processingId.value = pembayaranId;
-
-  try {
-    const token = localStorage.getItem("token");
-
-    const response = await fetch(
+    const konfirmasiResponse = await fetch(
       `http://127.0.0.1:8000/api/pembayaran/${pembayaranId}/konfirmasi`,
       {
         method: "PATCH",
@@ -317,23 +306,28 @@ const konfirmasiPembayaran = async (pembayaranId) => {
       }
     );
 
-    const result = await response.json();
+    const konfirmasiResult = await konfirmasiResponse.json();
 
-    if (!response.ok) {
-      alert(result.message || "Gagal mengkonfirmasi pembayaran.");
-      return;
+    if (!konfirmasiResponse.ok) {
+      throw new Error(
+        konfirmasiResult.message ||
+        "Pembayaran berhasil dicatat, tetapi gagal dikonfirmasi."
+      );
     }
 
-    alert(result.message || "Pembayaran berhasil dikonfirmasi.");
+    showPaymentModal.value = false;
+    selectedRental.value = null;
 
     await getData();
   } catch (error) {
     console.error(error);
-    alert("Tidak dapat terhubung ke server.");
+    alert(error.message || "Tidak dapat terhubung ke server.");
   } finally {
     processingId.value = null;
   }
 };
+
+
 
 onMounted(() => {
   getData();
@@ -504,12 +498,15 @@ onMounted(() => {
 
               <tbody class="text-sm">
 
-                <!-- Loading -->
-                <tr v-if="loading">
-                  <td colspan="9" class="px-6 py-10 text-center text-sm text-gray-400">
-                    Memuat data transaksi...
-                  </td>
-                </tr>
+                <!-- Loading skeleton -->
+                <template v-if="loading">
+                  <tr v-for="index in 5" :key="index" class="animate-pulse border-b border-gray-100 last:border-0">
+                    <td v-for="column in 10" :key="column" class="px-6 py-5">
+                      <div class="h-4 rounded bg-gray-200"
+                        :class="column === 1 ? 'w-24' : column === 10 ? 'w-20' : 'w-16'"></div>
+                    </td>
+                  </tr>
+                </template>
 
                 <!-- Empty -->
                 <tr v-else-if="filteredTransaksi.length === 0">
@@ -603,29 +600,23 @@ onMounted(() => {
                   <td class="px-6 py-5">
 
                     <!-- Belum ada pembayaran -->
-                    <button v-if="!item.pembayaran" @click="bayarCash(item)" :disabled="processingId === item.id"
+                    <button v-if="!item.pembayaran" @click="openPaymentModal(item)" :disabled="processingId === item.id"
                       class="rounded-lg bg-[#4682A9] px-4 py-2 text-xs font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
                       {{
                         processingId === item.id
                           ? "Memproses..."
-                      : "Bayar Cash"
-                      }}
-                    </button>
-
-                    <!-- Pembayaran sudah dicatat, menunggu konfirmasi admin -->
-                    <button v-else-if="item.pembayaran.status === 'menunggu'"
-                      @click="konfirmasiPembayaran(item.pembayaran.id)" :disabled="processingId === item.pembayaran.id"
-                      class="rounded-lg bg-green-600 px-4 py-2 text-xs font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
-                      {{
-                        processingId === item.pembayaran.id
-                          ? "Memproses..."
-                      : "Konfirmasi"
+                          : "Bayar Cash"
                       }}
                     </button>
 
                     <!-- Pembayaran sudah lunas -->
                     <span v-else-if="item.pembayaran.status === 'lunas'" class="text-xs font-medium text-green-600">
                       Sudah Dibayar
+                    </span>
+
+                    <!-- Jika masih menunggu -->
+                    <span v-else class="text-xs font-medium text-yellow-600">
+                      Menunggu Pembayaran
                     </span>
 
                   </td>
@@ -643,5 +634,70 @@ onMounted(() => {
       </div>
     </main>
 
+  </div>
+
+  <!-- Modal Konfirmasi Pembayaran -->
+  <div v-if="showPaymentModal && selectedRental"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm"
+    @click.self="closePaymentModal">
+    <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+            <span class="text-lg font-bold">Rp</span>
+          </div>
+
+          <div>
+            <h2 class="text-lg font-semibold text-gray-800">
+              Konfirmasi pembayaran
+            </h2>
+            <p class="mt-1 text-sm text-gray-500">
+              Pastikan detail pembayaran sudah benar.
+            </p>
+          </div>
+        </div>
+
+        <button type="button" @click="closePaymentModal" :disabled="processingId !== null"
+          class="text-2xl leading-none text-gray-400 transition hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+          aria-label="Tutup modal">
+          &times;
+        </button>
+      </div>
+
+      <div class="mt-6 rounded-xl bg-gray-50 p-4">
+        <div class="flex items-center justify-between gap-4 text-sm">
+          <span class="text-gray-500">Kode rental</span>
+          <span class="font-medium text-gray-800">{{ selectedRental.kode_sesi }}</span>
+        </div>
+
+        <div class="mt-3 flex items-center justify-between gap-4 text-sm">
+          <span class="text-gray-500">Perangkat</span>
+          <span class="font-medium text-gray-800">{{ selectedRental.perangkat?.name || "-" }}</span>
+        </div>
+
+        <div class="mt-4 flex items-end justify-between border-t border-gray-200 pt-4">
+          <span class="text-sm text-gray-500">Total pembayaran</span>
+          <span class="text-xl font-bold text-gray-800">
+            Rp{{ formatRupiah(selectedRental.harga) }}
+          </span>
+        </div>
+      </div>
+
+      <p class="mt-4 text-sm leading-6 text-gray-500">
+        Pembayaran akan langsung dicatat sebagai <span class="font-semibold text-emerald-600">Lunas</span>.
+      </p>
+
+      <div class="mt-6 flex justify-end gap-3">
+        <button type="button" @click="closePaymentModal" :disabled="processingId !== null"
+          class="rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50">
+          Batal
+        </button>
+
+        <button type="button" @click="bayarCash" :disabled="processingId !== null"
+          class="rounded-xl bg-[#4682A9] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3b7194] disabled:cursor-not-allowed disabled:opacity-50">
+          {{ processingId !== null ? "Memproses..." : "Konfirmasi Bayar" }}
+        </button>
+      </div>
+    </div>
   </div>
 </template>

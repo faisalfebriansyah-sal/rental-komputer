@@ -209,8 +209,25 @@ onMounted(() => {
 
                 <div class="mt-6 overflow-hidden rounded-2xl bg-white shadow-sm">
 
-                    <div v-if="loading" class="px-6 py-12 text-center text-sm text-gray-400">
-                        Memuat data...
+                    <div v-if="loading" class="animate-pulse">
+                        <div class="border-b border-gray-100 px-6 py-4">
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="h-4 w-16 rounded bg-gray-200"></div>
+                                <div class="h-4 w-24 rounded bg-gray-200"></div>
+                                <div class="ml-auto h-4 w-12 rounded bg-gray-200"></div>
+                            </div>
+                        </div>
+
+                        <div v-for="index in 5" :key="index" class="border-b border-gray-100 px-6 py-5 last:border-0">
+                            <div class="grid grid-cols-3 items-center gap-4">
+                                <div class="h-4 w-32 rounded bg-gray-200"></div>
+                                <div class="h-4 w-24 rounded bg-gray-200"></div>
+                                <div class="ml-auto flex gap-4">
+                                    <div class="h-4 w-10 rounded bg-gray-200"></div>
+                                    <div class="h-4 w-12 rounded bg-gray-200"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div v-else-if="jenisPerangkat.length === 0" class="px-6 py-12 text-center text-sm text-gray-400">
