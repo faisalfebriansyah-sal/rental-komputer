@@ -18,6 +18,7 @@ class Sesi_rental extends Model
         'status',
         'waktu_mulai',
         'waktu_selesai',
+        'expired_at',
     ];
 
     protected $casts = [

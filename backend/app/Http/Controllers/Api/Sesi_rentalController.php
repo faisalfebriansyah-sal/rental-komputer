@@ -100,6 +100,7 @@ class Sesi_rentalController extends Controller
                     'status' => 'belum_main',
                     'waktu_mulai' => null,
                     'waktu_selesai' => null,
+                    'expired_at' => now()->addDay(),
                ]);
 
                event(new RentalUpdated($sesirental));
@@ -173,21 +174,89 @@ class Sesi_rentalController extends Controller
                     ], 404);
                }
 
-               // Cek apakah pembayaran untuk sesi ini sudah lunas
-               $pembayaran = Pembayaran::where('sesi_id', $sesirental->id)
-                    ->where('status', 'lunas')    
-                    ->first();
+               /*
+               |--------------------------------------------------------------------------
+               | Cek masa berlaku kode sebelum sesi dimulai
+               |--------------------------------------------------------------------------
+               */
 
-               if (!$pembayaran) {
+               if (
+                    $sesirental->status === 'belum_main' &&
+                    $sesirental->expired_at &&
+                    now()->greaterThanOrEqualTo($sesirental->expired_at)
+               ) {
                     return response()->json([
                          'status' => false,
-                         'message' => 'Pembayaran belum dikonfirmasi. Silakan lakukan pembayaran terlebih dahulu.'
+                         'message' => 'Kode rental sudah expired .'
                     ], 422);
                }
 
+               /*
+               |--------------------------------------------------------------------------
+               | Cek sesi aktif yang waktu rentalnya sudah habis
+               |--------------------------------------------------------------------------
+               */
+
+               if (
+                    $sesirental->status === 'sedang_main' &&
+                    $sesirental->waktu_selesai &&
+                    now()->greaterThanOrEqualTo($sesirental->waktu_selesai)
+               ) {
+                    $sesirental->update([
+                         'status' => 'selesai',
+                    ]);
+
+                    $perangkat = Perangkat::find($sesirental->perangkat_id);
+
+                    if ($perangkat) {
+                         $perangkat->update([
+                              'status' => 'tersedia',
+                         ]);
+                    }
+
+                    event(new RentalUpdated($sesirental));
+
+                    return response()->json([
+                         'status' => false,
+                         'message' => 'Kode rental  expired .'
+                    ], 422);
+               }
+
+               /*
+               |--------------------------------------------------------------------------
+               | Kode yang sudah selesai tidak dapat digunakan kembali
+               |--------------------------------------------------------------------------
+               */
+
+               if ($sesirental->status === 'selesai') {
+                    return response()->json([
+                         'status' => false,
+                         'message' => 'Kode rental  expired .'
+                    ], 422);
+               }
+
+               /*
+               |--------------------------------------------------------------------------
+               | Kode yang sedang aktif tidak dapat digunakan kembali
+               |--------------------------------------------------------------------------
+               */
+
+               if ($sesirental->status === 'sedang_main') {
+                    return response()->json([
+                         'status' => false,
+                         'message' => 'Sesi rental dengan kode ini sedang berjalan.'
+                    ], 422);
+               }
+
+               /*
+  |--------------------------------------------------------------------------
+  | Kode belum dimainkan dan belum expired
+  |--------------------------------------------------------------------------
+  */
+
                return response()->json([
                     'status' => true,
-                    'message' => 'Kode rental valid dan pembayaran sudah dikonfirmasi.',
+                    'message' => 'Kode rental valid.',
                     'data' => $sesirental
                ], 200);
 
