@@ -39,7 +39,7 @@ class PembayaranController extends Controller
                 'sesi_id' => 'required|exists:sesi_rentals,id',
             ]);
 
-            $sesiRental = \App\Models\Sesi_rental::find($request->sesi_id);
+            $sesiRental = Sesi_rental::find($request->sesi_id);
 
             if (!$sesiRental) {
                 return response()->json([
