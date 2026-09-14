@@ -80,8 +80,8 @@ import { Gamepad2, Monitor, Zap } from "lucide-vue-next";
           >
             Masukkan Kode Rental
           </RouterLink>
-
-
+          
+          
           <!-- Features -->
           <div class="mt-20 grid grid-cols-1 gap-4 sm:grid-cols-3">
 
@@ -102,7 +102,7 @@ import { Gamepad2, Monitor, Zap } from "lucide-vue-next";
               </p>
             </div>
 
-
+            
             <!-- Feature 2 -->
             <div
               class="rounded-2xl border border-[#749BC2]/20 bg-white/60 p-5 text-left"

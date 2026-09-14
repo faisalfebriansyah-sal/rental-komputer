@@ -132,6 +132,13 @@ class PerangkatController extends Controller
                 ], 404);
             }
 
+            if ($perangkat->sesiRentals()->exists()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Perangkat tidak dapat dihapus karena sudah memiliki riwayat sesi rental.'
+                ], 422);
+            }
+
             $perangkat->delete();
 
             return response()->json([

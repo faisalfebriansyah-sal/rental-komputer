@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pembayaran', [PembayaranController::class, 'store']);
     Route::get('/pembayaran/{id}', [PembayaranController::class, 'show']);
     Route::put('/pembayaran/{id}', [PembayaranController::class, 'update']);
+    Route::patch('/pembayaran/{id}/konfirmasi', [PembayaranController::class, 'konfirmasi']);
     Route::delete('/pembayaran/{id}', [PembayaranController::class, 'destroy']);
 
     Route::get('/sesi_rental', [Sesi_rentalController::class, 'index']);
@@ -45,4 +46,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sesi_rental/{id}', [Sesi_rentalController::class, 'show']);
     Route::put('/sesi_rental/{id}', [Sesi_rentalController::class, 'update']);
     Route::delete('/sesi_rental/{id}', [Sesi_rentalController::class, 'destroy']);
+
 });
+
+Route::post('/rental/verify-code', [Sesi_rentalController::class, 'verifyCode']);
+Route::post('/rental/start-session/{id}', [Sesi_rentalController::class, 'startSession']);
+Route::post('/rental/finish-session/{id}', [Sesi_rentalController::class, 'finishSession']);
+Route::get('/rental/session/{id}', [Sesi_rentalController::class, 'getRentalSession']);
+Route::get(
+    '/rental/active-session/{perangkatId}',
+    [Sesi_rentalController::class, 'getActiveSession']
+);

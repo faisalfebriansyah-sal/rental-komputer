@@ -77,18 +77,33 @@ class PelangganController extends Controller
     {
         try {
             $pelanggan = Pelanggan::find($id);
-            if (! $pelanggan) {
-                return response()->json(['status' => false, 'message' => 'data pelanggan tidak ada'], 404);
+
+            if (!$pelanggan) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data pelanggan tidak ada'
+                ], 404);
+            }
+
+            if ($pelanggan->sesiRentals()->exists()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Pelanggan tidak dapat dihapus karena memiliki riwayat rental'
+                ], 409);
             }
 
             $pelanggan->delete();
 
             return response()->json([
-                'status'  => true,
-                'message' => 'data pelanggan berhasil dihapus',
+                'status' => true,
+                'message' => 'Data pelanggan berhasil dihapus'
             ], 200);
+
         } catch (Exception $e) {
-            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }
