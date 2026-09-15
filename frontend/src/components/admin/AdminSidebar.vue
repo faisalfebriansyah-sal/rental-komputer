@@ -70,7 +70,7 @@ const logout = async () => {
   try {
     const token = localStorage.getItem("token")
 
-    await fetch("http://127.0.0.1:8000/api/logout", {
+    await fetch("http://10.10.10.30:8000/api/logout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -94,7 +94,7 @@ const getAdmin = async () => {
     const token = localStorage.getItem("token");
 
     const response = await fetch(
-      "http://127.0.0.1:8000/api/user",
+      "http://10.10.10.30:8000/api/user",
       {
         method: "GET",
         headers: {
@@ -150,8 +150,8 @@ onMounted(() => {
     <nav class="mt-12 space-y-2">
       <RouterLink v-for="item in menuItems" :key="item.path" :to="item.path"
         class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition" :class="route.path === item.path
-            ? 'bg-white/15 text-white'
-            : 'text-white/75 hover:bg-white/10 hover:text-white'
+          ? 'bg-white/15 text-white'
+          : 'text-white/75 hover:bg-white/10 hover:text-white'
           ">
         <component :is="item.icon" :size="18" :stroke-width="1.8" />
         {{ item.name }}

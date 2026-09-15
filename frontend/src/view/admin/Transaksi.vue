@@ -36,9 +36,9 @@ const getData = async () => {
 
     // Fetch rentals, payments, and customers concurrently
     const [rentalResponse, pembayaranResponse, pelangganResponse] = await Promise.all([
-      fetch("http://127.0.0.1:8000/api/sesi_rental", { headers }),
-      fetch("http://127.0.0.1:8000/api/pembayaran", { headers }),
-      fetch("http://127.0.0.1:8000/api/pelanggan", { headers }),
+      fetch("http://10.10.10.30:8000/api/sesi_rental", { headers }),
+      fetch("http://10.10.10.30:8000/api/pembayaran", { headers }),
+      fetch("http://10.10.10.30:8000/api/pelanggan", { headers }),
     ]);
 
     const rentalResult = await rentalResponse.json();
@@ -263,7 +263,7 @@ const bayarCash = async () => {
 
     // 1. Buat pembayaran
     const response = await fetch(
-      "http://127.0.0.1:8000/api/pembayaran",
+      "http://10.10.10.30:8000/api/pembayaran",
       {
         method: "POST",
         headers: {
@@ -296,7 +296,7 @@ const bayarCash = async () => {
     }
 
     const konfirmasiResponse = await fetch(
-      `http://127.0.0.1:8000/api/pembayaran/${pembayaranId}/konfirmasi`,
+      `http://10.10.10.30:8000/api/pembayaran/${pembayaranId}/konfirmasi`,
       {
         method: "PATCH",
         headers: {
@@ -640,7 +640,7 @@ onMounted(() => {
   <div v-if="showPaymentModal && selectedRental"
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm"
     @click.self="closePaymentModal">
-    <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800">
+    <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
       <div class="flex items-start justify-between gap-4">
         <div class="flex items-center gap-3">
           <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">

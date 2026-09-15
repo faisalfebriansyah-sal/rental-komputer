@@ -26,7 +26,7 @@ const getJenisPerangkat = async () => {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-            "http://127.0.0.1:8000/api/jenis_perangkat",
+            "http://10.10.10.30:8000/api/jenis_perangkat",
             {
                 headers: {
                     Accept: "application/json",
@@ -101,8 +101,8 @@ const saveJenisPerangkat = async () => {
         const isEdit = editingJenis.value !== null;
 
         const url = isEdit
-            ? `http://127.0.0.1:8000/api/jenis_perangkat/${editingJenis.value.id}`
-            : "http://127.0.0.1:8000/api/jenis_perangkat";
+            ? `http://10.10.10.30:8000/api/jenis_perangkat/${editingJenis.value.id}`
+            : "http://10.10.10.30:8000/api/jenis_perangkat";
 
         const response = await fetch(url, {
             method: isEdit ? "PUT" : "POST",
@@ -145,7 +145,7 @@ const deleteJenisPerangkat = async (id) => {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-            `http://127.0.0.1:8000/api/jenis_perangkat/${id}`,
+            `http://10.10.10.30:8000/api/jenis_perangkat/${id}`,
             {
                 method: "DELETE",
                 headers: {

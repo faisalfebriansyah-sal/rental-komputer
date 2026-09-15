@@ -21,7 +21,7 @@ const submitCode = async () => {
 
   try {
     const response = await fetch(
-      'http://127.0.0.1:8000/api/rental/verify-code',
+      'http://10.10.10.30:8000/api/rental/verify-code',
       {
         method: 'POST',
         headers: {
@@ -67,9 +67,7 @@ const submitCode = async () => {
       <nav class="mx-auto flex max-w-6xl items-center justify-between">
 
         <RouterLink to="/" class="flex items-center gap-3">
-          <div
-            class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4682A9] text-lg text-white"
-          >
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4682A9] text-lg text-white">
             <Gamepad2 :size="22" />
           </div>
 
@@ -78,15 +76,12 @@ const submitCode = async () => {
               PLAY
             </h1>
             <p class="-mt-1 text-[10px] font-medium tracking-widest text-slate-500">
-              Point 
+              Point
             </p>
           </div>
         </RouterLink>
 
-        <RouterLink
-          to="/"
-          class="text-sm font-medium text-slate-500 transition hover:text-[#4682A9]"
-        >
+        <RouterLink to="/" class="text-sm font-medium text-slate-500 transition hover:text-[#4682A9]">
           Kembali
         </RouterLink>
 
@@ -100,9 +95,7 @@ const submitCode = async () => {
       <section class="w-full max-w-md">
 
         <!-- Icon -->
-        <div
-          class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#91C8E4]/40 text-3xl"
-        >
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#91C8E4]/40 text-3xl">
           <Ticket :size="36" color="#4682A9" />
         </div>
 
@@ -120,38 +113,21 @@ const submitCode = async () => {
 
 
         <!-- Card -->
-        <div
-          class="mt-8 rounded-3xl border border-[#749BC2]/20 bg-white p-7 shadow-sm"
-        >
+        <div class="mt-8 rounded-3xl border border-[#749BC2]/20 bg-white p-7 shadow-sm">
 
-          <label
-            for="rental-code"
-            class="text-sm font-semibold text-slate-700"
-          >
+          <label for="rental-code" class="text-sm font-semibold text-slate-700">
             Kode Rental
           </label>
 
-          <input
-            id="rental-code"
-            v-model="rentalCode"
-            type="text"
-            placeholder="6 DIGIT KODE"
+          <input id="rental-code" v-model="rentalCode" type="text" placeholder="6 DIGIT KODE"
             class="mt-2 w-full rounded-xl border border-slate-200 bg-[#F6F4EB]/40 px-4 py-3 text-center font-medium tracking-widest text-slate-700 outline-none transition placeholder:tracking-normal placeholder:text-slate-400 focus:border-[#4682A9] focus:ring-4 focus:ring-[#91C8E4]/30"
-            @input="rentalCode = rentalCode.replace(/\D/g, '').slice(0, 6)"
-          />
+            @input="rentalCode = rentalCode.replace(/\D/g, '').slice(0, 6)" />
 
-          <button
-            @click="submitCode"
-            type="button"
-            :disabled="loading"
-            class="mt-5 flex w-full items-center justify-center rounded-xl bg-[#4682A9] py-3.5 text-sm font-semibold text-white transition hover:bg-[#749BC2] disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <button @click="submitCode" type="button" :disabled="loading"
+            class="mt-5 flex w-full items-center justify-center rounded-xl bg-[#4682A9] py-3.5 text-sm font-semibold text-white transition hover:bg-[#749BC2] disabled:cursor-not-allowed disabled:opacity-60">
             {{ loading ? 'Memeriksa...' : 'Lanjutkan' }}
           </button>
-          <p
-            v-if="errorMessage"
-            class="mt-3 text-center text-sm text-red-500"
-          >
+          <p v-if="errorMessage" class="mt-3 text-center text-sm text-red-500">
             {{ errorMessage }}
           </p>
 
