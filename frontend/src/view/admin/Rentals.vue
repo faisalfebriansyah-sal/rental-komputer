@@ -9,10 +9,11 @@ const loading = ref(true);
 const errorMessage = ref("");
 
 const showModal = ref(false);
+const openingModal = ref(false);
 
 const pelanggan = ref([]);
 const perangkat = ref([]);
-const pembayaran =  ref([]);
+const pembayaran = ref([]);
 
 const customerSearch = ref('');
 const showCustomerDropdown = ref(false);
@@ -39,7 +40,7 @@ const getRentals = async (isSilent = false) => {
           const token = localStorage.getItem("token");
 
           const response = await fetch(
-               "http://127.0.0.1:8000/api/sesi_rental",
+               "http://10.10.10.30:8000/api/sesi_rental",
                {
                     method: "GET",
                     headers: {
@@ -77,7 +78,7 @@ const getPelanggan = async () => {
           const token = localStorage.getItem("token");
 
           const response = await fetch(
-               "http://127.0.0.1:8000/api/pelanggan",
+               "http://10.10.10.30:8000/api/pelanggan",
                {
                     headers: {
                          Accept: "application/json",
@@ -104,7 +105,7 @@ const getPerangkatTersedia = async () => {
           const token = localStorage.getItem("token");
 
           const response = await fetch(
-               "http://127.0.0.1:8000/api/perangkat",
+               "http://10.10.10.30:8000/api/perangkat",
                {
                     headers: {
                          Accept: "application/json",
@@ -134,7 +135,7 @@ const getPembayaran = async () => {
           const token = localStorage.getItem("token");
 
           const response = await fetch(
-               "http://127.0.0.1:8000/api/pembayaran",
+               "http://10.10.10.30:8000/api/pembayaran",
                {
                     headers: {
                          Accept: "application/json",
@@ -258,6 +259,8 @@ const setFilter = (filter) => {
 };
 
 const openModal = async () => {
+     openingModal.value = true;
+
      form.value = {
           pelanggan_id: "",
           perangkat_id: "",
@@ -268,12 +271,16 @@ const openModal = async () => {
      showCustomerDropdown.value = false;
      formError.value = "";
 
-     await Promise.all([
-          getPelanggan(),
-          getPerangkatTersedia(),
-     ]);
+     try {
+          await Promise.all([
+               getPelanggan(),
+               getPerangkatTersedia(),
+          ]);
 
-     showModal.value = true;
+          showModal.value = true;
+     } finally {
+          openingModal.value = false;
+     }
 };
 
 const createRental = async () => {
@@ -294,7 +301,7 @@ const createRental = async () => {
           const token = localStorage.getItem("token");
 
           const response = await fetch(
-               "http://127.0.0.1:8000/api/sesi_rental",
+               "http://10.10.10.30:8000/api/sesi_rental",
                {
                     method: "POST",
                     headers: {
@@ -385,9 +392,9 @@ onUnmounted(() => {
                               </p>
                          </div>
 
-                         <button type="button" @click="openModal"
-                              class="rounded-xl bg-[#4682A9] px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-[#3b7194]">
-                              + Tambah Rental
+                         <button type="button" @click="openModal" :disabled="openingModal"
+                              class="rounded-xl bg-[#4682A9] px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-[#3b7194] disabled:cursor-not-allowed disabled:opacity-60">
+                              {{ openingModal ? "Memuat..." : "+ Tambah Rental" }}
                          </button>
                     </div>
 
@@ -530,8 +537,37 @@ onUnmounted(() => {
 
                                         <!-- Error -->
                                         <tr v-else-if="errorMessage">
-                                             <td colspan="8" class="px-6 py-10 text-center text-red-500">
-                                                  {{ errorMessage }}
+                                             <td colspan="8" class="px-6 py-12">
+                                                  <div class="flex flex-col items-center text-center">
+                                                       <div
+                                                            class="relative flex h-20 w-20 items-center justify-center rounded-[2rem] bg-[#DCECF5] shadow-inner">
+                                                            <div
+                                                                 class="absolute -top-3 h-4 w-1.5 rounded-full bg-[#4682A9]">
+                                                            </div>
+                                                            <div
+                                                                 class="flex h-14 w-16 flex-col items-center justify-center rounded-2xl bg-[#4682A9] shadow-sm">
+                                                                 <div class="flex gap-2">
+                                                                      <span
+                                                                           class="h-2.5 w-2.5 rounded-full bg-white"></span>
+                                                                      <span
+                                                                           class="h-2.5 w-2.5 rounded-full bg-white"></span>
+                                                                 </div>
+                                                                 <span
+                                                                      class="mt-2 h-1.5 w-7 rounded-full bg-[#B9D8E8]"></span>
+                                                            </div>
+                                                       </div>
+                                                       <p class="mt-5 text-base font-semibold text-gray-700">
+                                                            Server sedang tidak terhubung
+                                                       </p>
+                                                       <p class="mt-1 max-w-md text-sm text-gray-500">
+                                                            {{ errorMessage }} Coba periksa koneksi lalu muat ulang data
+                                                            rental.
+                                                       </p>
+                                                       <button type="button" @click="getRentals()"
+                                                            class="mt-5 rounded-xl bg-[#4682A9] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#3b7194]">
+                                                            Coba Lagi
+                                                       </button>
+                                                  </div>
                                              </td>
                                         </tr>
 

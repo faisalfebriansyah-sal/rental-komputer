@@ -41,7 +41,7 @@ const getPerangkat = async () => {
     const token = localStorage.getItem("token");
 
     const response = await fetch(
-      "http://127.0.0.1:8000/api/perangkat",
+      "http://10.10.10.30:8000/api/perangkat",
       {
         method: "GET",
         headers: {
@@ -73,7 +73,7 @@ const getJenisPerangkat = async () => {
     const token = localStorage.getItem("token");
 
     const response = await fetch(
-      "http://127.0.0.1:8000/api/jenis_perangkat",
+      "http://10.10.10.30:8000/api/jenis_perangkat",
       {
         method: "GET",
         headers: {
@@ -122,7 +122,7 @@ const createPerangkat = async () => {
     const token = localStorage.getItem("token");
 
     const response = await fetch(
-      "http://127.0.0.1:8000/api/perangkat",
+      "http://10.10.10.30:8000/api/perangkat",
       {
         method: "POST",
         headers: {
@@ -188,7 +188,7 @@ const updatePerangkat = async () => {
     const token = localStorage.getItem("token");
 
     const response = await fetch(
-      `http://127.0.0.1:8000/api/perangkat/${editingId.value}`,
+      `http://10.10.10.30:8000/api/perangkat/${editingId.value}`,
       {
         method: "PUT",
         headers: {
@@ -236,7 +236,7 @@ const deletePerangkat = async (item) => {
     const token = localStorage.getItem("token");
 
     const response = await fetch(
-      `http://127.0.0.1:8000/api/perangkat/${item.id}`,
+      `http://10.10.10.30:8000/api/perangkat/${item.id}`,
       {
         method: "DELETE",
         headers: {
@@ -307,15 +307,9 @@ onMounted(() => {
             Semua
           </button>
 
-          <button
-            class="rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-gray-600 shadow-sm transition hover:bg-gray-50">
-            PC
-          </button>
 
-          <button
-            class="rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-gray-600 shadow-sm transition hover:bg-gray-50">
-            PlayStation
-          </button>
+
+
 
         </div>
 

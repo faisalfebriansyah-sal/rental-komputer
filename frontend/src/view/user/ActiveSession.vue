@@ -41,7 +41,7 @@ const loadRentalSession = async () => {
 
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/rental/session/${oldRental.id}`,
+      `http://10.10.10.30:8000/api/rental/session/${oldRental.id}`,
       {
         headers: {
           'Accept': 'application/json'
@@ -87,10 +87,10 @@ const updateTimer = async () => {
     Math.floor((waktuSelesai - sekarang) / 1000)
   );
 
- if (sisaWaktu.value === 0) {
-  clearInterval(timer);
-  await finishSession();
-}
+  if (sisaWaktu.value === 0) {
+    clearInterval(timer);
+    await finishSession();
+  }
 };
 
 const finishSession = async () => {
@@ -100,7 +100,7 @@ const finishSession = async () => {
 
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/api/rental/finish-session/${rental.value.id}`,
+      `http://10.10.10.30:8000/api/rental/finish-session/${rental.value.id}`,
       {
         method: 'POST',
         headers: {
@@ -129,7 +129,7 @@ const finishSession = async () => {
     console.error(error);
   }
 };
- 
+
 onMounted(async () => {
   const berhasil = await loadRentalSession();
 
@@ -138,7 +138,7 @@ onMounted(async () => {
   }
 
   updateTimer();
-  
+
   timer = setInterval(updateTimer, 1000);
 });
 
@@ -214,8 +214,8 @@ onUnmounted(() => {
           </div>
 
           <p class="mt-3 text-xs text-slate-400">
-  {{ formatDetailTime(sisaWaktu) }}
-</p>
+            {{ formatDetailTime(sisaWaktu) }}
+          </p>
 
         </div>
 
@@ -228,16 +228,16 @@ onUnmounted(() => {
               Waktu Mulai
             </p>
 
-           <p class="mt-2 font-semibold text-slate-800">
-  {{
-    rental?.waktu_mulai
-      ? new Date(rental.waktu_mulai).toLocaleTimeString('id-ID', {
-          hour: '2-digit',
-          minute: '2-digit'
-        })
-      : '-'
-  }}
-</p>
+            <p class="mt-2 font-semibold text-slate-800">
+              {{
+                rental?.waktu_mulai
+                  ? new Date(rental.waktu_mulai).toLocaleTimeString('id-ID', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+              })
+              : '-'
+              }}
+            </p>
           </div>
 
 
@@ -246,16 +246,16 @@ onUnmounted(() => {
               Waktu Selesai
             </p>
 
-           <p class="mt-2 font-semibold text-slate-800">
-  {{
-    rental?.waktu_selesai
-      ? new Date(rental.waktu_selesai).toLocaleTimeString('id-ID', {
-          hour: '2-digit',
-          minute: '2-digit'
-        })
-      : '-'
-  }}
-</p>
+            <p class="mt-2 font-semibold text-slate-800">
+              {{
+                rental?.waktu_selesai
+                  ? new Date(rental.waktu_selesai).toLocaleTimeString('id-ID', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+              })
+              : '-'
+              }}
+            </p>
           </div>
 
 
@@ -264,9 +264,9 @@ onUnmounted(() => {
               Durasi
             </p>
 
-           <p class="mt-2 font-semibold text-slate-800">
-  {{ rental?.durasi }} Jam
-</p>
+            <p class="mt-2 font-semibold text-slate-800">
+              {{ rental?.durasi }} Jam
+            </p>
           </div>
 
         </div>
@@ -281,8 +281,8 @@ onUnmounted(() => {
             </p>
 
             <p class="mt-1 text-lg font-bold text-[#4682A9]">
-  Rp{{ Number(rental?.harga || 0).toLocaleString('id-ID') }}
-</p>
+              Rp{{ Number(rental?.harga || 0).toLocaleString('id-ID') }}
+            </p>
           </div>
 
           <div class="text-right">
@@ -290,9 +290,9 @@ onUnmounted(() => {
               Status
             </p>
 
-           <p class="mt-1 text-sm font-semibold text-green-600">
-  ● {{ rental?.status === 'aktif' ? 'Sedang Berjalan' : rental?.status }}
-</p>
+            <p class="mt-1 text-sm font-semibold text-green-600">
+              ● {{ rental?.status === 'aktif' ? 'Sedang Berjalan' : rental?.status }}
+            </p>
           </div>
 
         </div>
