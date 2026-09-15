@@ -10,7 +10,6 @@ class PelangganFactory extends Factory
     {
         return [
             'name' => fake('id_ID')->name(),
-            'no_hp' => fake()->unique()->numerify('08##########'), // 08 + 10 digit acak
         ];
     }
 }
