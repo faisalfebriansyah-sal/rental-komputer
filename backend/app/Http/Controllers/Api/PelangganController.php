@@ -28,12 +28,10 @@ class PelangganController extends Controller
         try {
             $request->validate([
                 'name'  => 'required|string',
-                'no_hp' => 'required|string|unique:pelanggans',
             ]);
 
             $pelanggan = Pelanggan::create([
                 'name'  => $request->name,
-                'no_hp' => $request->no_hp,
             ]);
 
             return response()->json([
@@ -56,11 +54,9 @@ class PelangganController extends Controller
 
             $request->validate([
                 'name'  => 'required|string',
-                'no_hp' => 'required|string|unique:pelanggans,no_hp,' . $id . ',id',
             ]);
 
             $pelanggan->name = $request->name;
-            $pelanggan->no_hp = $request->no_hp;
             $pelanggan->save();
 
             return response()->json([

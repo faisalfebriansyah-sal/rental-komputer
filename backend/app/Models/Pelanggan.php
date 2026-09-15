@@ -11,7 +11,6 @@ class Pelanggan extends Model
 
     protected $fillable = [
         'name',
-        'no_hp',
     ];
 
     public function sesiRentals()
