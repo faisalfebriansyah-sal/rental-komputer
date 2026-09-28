@@ -172,10 +172,12 @@ const filteredCustomers = computed(() => {
 	return customers.value.filter((customer) => {
 		const name = customer.name?.toLowerCase() || "";
 		const noHp = customer.no_hp || "";
+		const kodeMember = customer.kode_member?.toLowerCase() || "";
 
 		return (
 			name.includes(keyword) ||
-			noHp.includes(keyword)
+			noHp.includes(keyword) ||
+			kodeMember.includes(keyword)
 		);
 	});
 });
@@ -527,10 +529,12 @@ onMounted(() => {
 									<th class="px-6 py-4 text-xs font-semibold uppercase text-slate-500">
 										Pelanggan
 									</th>
+									
+									
 
-									<!-- <th class="px-6 py-4 text-xs font-semibold uppercase text-slate-500">
-										No. HP
-									</th> -->
+									<th class="px-6 py-4 text-xs font-semibold uppercase text-slate-500">
+										Kode Member
+									</th>
 
 									<th class="px-6 py-4 text-xs font-semibold uppercase text-slate-500">
 										Terdaftar
@@ -583,7 +587,7 @@ onMounted(() => {
 
 								<!-- Error -->
 								<tr v-else-if="error">
-									<td colspan="4" class="px-6 py-12">
+									<td colspan="5" class="px-6 py-12">
 										<div class="flex flex-col items-center text-center">
 											<div
 												class="relative flex h-20 w-20 items-center justify-center rounded-4xl bg-[#DCECF5] shadow-inner">
@@ -619,7 +623,7 @@ onMounted(() => {
 
 								<!-- Empty Search -->
 								<tr v-else-if="filteredCustomers.length === 0">
-									<td colspan="4" class="px-6 py-12 text-center">
+									<td colspan="5" class="px-6 py-12 text-center">
 										<div class="flex flex-col items-center">
 											<Search :size="32" class="text-slate-300" />
 
@@ -649,16 +653,23 @@ onMounted(() => {
 												</p>
 
 												<p class="text-xs text-slate-400">
-													ID #{{ customer.id }}
+													{{ customer.no_hp || '-' }}
 												</p>
 											</div>
 										</div>
 									</td>
 
-									<!-- Phone
-									<td class="px-6 py-4 text-sm text-slate-600">
-										{{ customer.no_hp }}
-									</td> -->
+
+
+										<!-- Kode Member -->
+										<td class="px-6 py-4">
+											<span
+												class="inline-flex items-center rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-bold tracking-wider text-emerald-700 font-mono">
+												{{ customer.kode_member || customer.kode_pelanggan || '-' }}
+										</span>
+									</td>
+
+									
 
 									<!-- Rental -->
 									<td class="px-6 py-4">
