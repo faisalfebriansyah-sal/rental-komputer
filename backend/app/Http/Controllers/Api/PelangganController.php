@@ -33,19 +33,20 @@ class PelangganController extends Controller
             $sheet = $spreadsheet->getActiveSheet();
             $sheet->setTitle('Pelanggan');
             $sheet->fromArray([
-                ['ID', 'Nama', 'Dibuat', 'Diperbarui'],
+                ['ID', 'Kode Member', 'Nama', 'Dibuat', 'Diperbarui'],
             ], null, 'A1');
 
             foreach ($pelanggans as $index => $pelanggan) {
                 $sheet->fromArray([[
                     $pelanggan->id,
+                    $pelanggan->kode_member,
                     $pelanggan->name,
                     $pelanggan->created_at?->format('Y-m-d H:i:s'),
                     $pelanggan->updated_at?->format('Y-m-d H:i:s'),
                 ]], null, 'A' . ($index + 2));
             }
 
-            foreach (['A', 'B', 'C', 'D'] as $column) {
+            foreach (['A', 'B', 'C', 'D', 'E'] as $column) {
                 $sheet->getColumnDimension($column)->setAutoSize(true);
             }
 
