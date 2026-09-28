@@ -39,7 +39,7 @@ const startSession = async () => {
           }
 
           const response = await fetch(
-               `http://10.10.10.30:8000/api/rental/start-session/${rental.value.id}`,
+               `http://10.10.10.67:8000/api/rental/start-session/${rental.value.id}`,
                {
                     method: 'POST',
                     headers: {

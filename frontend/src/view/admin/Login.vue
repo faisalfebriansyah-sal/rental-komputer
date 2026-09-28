@@ -14,7 +14,7 @@ const login = async () => {
   loading.value = true;
 
   try {
-    const response = await fetch("http://10.10.10.30:8000/api/login", {
+    const response = await fetch("http://10.10.10.67:8000/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -64,7 +64,7 @@ const login = async () => {
 
             <div>
               <p class="text-sm font-semibold">
-                RENTAL PC & PS
+                RENTAL PC
               </p>
               <p class="text-xs text-white/70">
                 Admin Panel

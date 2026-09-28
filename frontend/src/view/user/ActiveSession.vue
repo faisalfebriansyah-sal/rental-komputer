@@ -41,7 +41,7 @@ const loadRentalSession = async () => {
 
   try {
     const response = await fetch(
-      `http://10.10.10.30:8000/api/rental/session/${oldRental.id}`,
+      `http://10.10.10.67:8000/api/rental/session/${oldRental.id}`,
       {
         headers: {
           'Accept': 'application/json'
@@ -100,7 +100,7 @@ const finishSession = async () => {
 
   try {
     const response = await fetch(
-      `http://10.10.10.30:8000/api/rental/finish-session/${rental.value.id}`,
+      `http://10.10.10.67:8000/api/rental/finish-session/${rental.value.id}`,
       {
         method: 'POST',
         headers: {
@@ -234,8 +234,8 @@ onUnmounted(() => {
                   ? new Date(rental.waktu_mulai).toLocaleTimeString('id-ID', {
                     hour: '2-digit',
                     minute: '2-digit'
-              })
-              : '-'
+                  })
+                  : '-'
               }}
             </p>
           </div>
@@ -252,8 +252,8 @@ onUnmounted(() => {
                   ? new Date(rental.waktu_selesai).toLocaleTimeString('id-ID', {
                     hour: '2-digit',
                     minute: '2-digit'
-              })
-              : '-'
+                  })
+                  : '-'
               }}
             </p>
           </div>
@@ -297,6 +297,13 @@ onUnmounted(() => {
 
         </div>
 
+        <!-- Action -->
+        <div class="mt-6">
+          <button @click="finishSession" type="button"
+            class="w-full rounded-2xl border border-[#4682A9] bg-white px-5 py-4 text-sm font-semibold text-[#4682A9] transition hover:bg-[#4682A9] hover:text-white">
+            Selesaikan Sesi
+          </button>
+        </div>
 
         <!-- Notice -->
         <div class="mt-6 rounded-2xl bg-[#91C8E4]/20 px-5 py-4 text-center">
