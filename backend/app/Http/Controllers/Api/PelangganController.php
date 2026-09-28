@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Pelanggan;
 use Exception;
 use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class PelangganController extends Controller
 {
@@ -20,6 +22,47 @@ class PelangganController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function export()
+    {
+        try {
+            $pelanggans = Pelanggan::latest()->get();
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Pelanggan');
+            $sheet->fromArray([
+                ['ID', 'Nama', 'Dibuat', 'Diperbarui'],
+            ], null, 'A1');
+
+            foreach ($pelanggans as $index => $pelanggan) {
+                $sheet->fromArray([[
+                    $pelanggan->id,
+                    $pelanggan->name,
+                    $pelanggan->created_at?->format('Y-m-d H:i:s'),
+                    $pelanggan->updated_at?->format('Y-m-d H:i:s'),
+                ]], null, 'A' . ($index + 2));
+            }
+
+            foreach (['A', 'B', 'C', 'D'] as $column) {
+                $sheet->getColumnDimension($column)->setAutoSize(true);
+            }
+
+            $filePath = tempnam(sys_get_temp_dir(), 'pelanggan_');
+            $writer = new Xlsx($spreadsheet);
+            $writer->save($filePath);
+
+            return response()->download(
+                $filePath,
+                'pelanggan.xlsx',
+                ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+            )->deleteFileAfterSend(true);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 

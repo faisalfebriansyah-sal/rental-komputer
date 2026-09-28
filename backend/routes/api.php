@@ -18,6 +18,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/pelanggan/export', [PelangganController::class, 'export']);
     Route::get('/pelanggan', [PelangganController::class, 'index']);
     Route::post('/pelanggan', [PelangganController::class, 'store']);
     Route::put('/pelanggan/{id}', [PelangganController::class, 'update']);
@@ -34,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/perangkat/{id}', [PerangkatController::class, 'update']);
     Route::delete('/perangkat/{id}', [PerangkatController::class, 'destroy']);
 
+    Route::get('/pembayaran/export', [PembayaranController::class, 'export']);
     Route::get('/pembayaran', [PembayaranController::class, 'index']);
     Route::post('/pembayaran', [PembayaranController::class, 'store']);
     Route::get('/pembayaran/{id}', [PembayaranController::class, 'show']);
