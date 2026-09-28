@@ -40,7 +40,7 @@ const getRentals = async (isSilent = false) => {
           const token = localStorage.getItem("token");
 
           const response = await fetch(
-               "http://10.10.10.30:8000/api/sesi_rental",
+               "http://10.10.10.67:8000/api/sesi_rental",
                {
                     method: "GET",
                     headers: {
@@ -78,7 +78,7 @@ const getPelanggan = async () => {
           const token = localStorage.getItem("token");
 
           const response = await fetch(
-               "http://10.10.10.30:8000/api/pelanggan",
+               "http://10.10.10.67:8000/api/pelanggan",
                {
                     headers: {
                          Accept: "application/json",
@@ -105,7 +105,7 @@ const getPerangkatTersedia = async () => {
           const token = localStorage.getItem("token");
 
           const response = await fetch(
-               "http://10.10.10.30:8000/api/perangkat",
+               "http://10.10.10.67:8000/api/perangkat",
                {
                     headers: {
                          Accept: "application/json",
@@ -135,7 +135,7 @@ const getPembayaran = async () => {
           const token = localStorage.getItem("token");
 
           const response = await fetch(
-               "http://10.10.10.30:8000/api/pembayaran",
+               "http://10.10.10.67:8000/api/pembayaran",
                {
                     headers: {
                          Accept: "application/json",
@@ -301,7 +301,7 @@ const createRental = async () => {
           const token = localStorage.getItem("token");
 
           const response = await fetch(
-               "http://10.10.10.30:8000/api/sesi_rental",
+               "http://10.10.10.67:8000/api/sesi_rental",
                {
                     method: "POST",
                     headers: {

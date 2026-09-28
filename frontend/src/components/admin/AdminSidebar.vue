@@ -57,11 +57,7 @@ const menuItems = [
     icon: CreditCard,
     path: "/admin/transaksi",
   },
-  {
-    name: "Pengaturan",
-    icon: Settings,
-    path: "/admin/settings",
-  },
+
 ];
 
 const logout = async () => {
@@ -70,7 +66,7 @@ const logout = async () => {
   try {
     const token = localStorage.getItem("token")
 
-    await fetch("http://10.10.10.30:8000/api/logout", {
+    await fetch("http://10.10.10.67:8000/api/logout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -94,7 +90,7 @@ const getAdmin = async () => {
     const token = localStorage.getItem("token");
 
     const response = await fetch(
-      "http://10.10.10.30:8000/api/user",
+      "http://10.10.10.67:8000/api/user",
       {
         method: "GET",
         headers: {

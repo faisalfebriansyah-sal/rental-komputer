@@ -75,15 +75,15 @@ const getDashboardData = async () => {
                rentalResponse,
                pembayaranResponse
           ] = await Promise.all([
-               fetch("http://10.10.10.30:8000/api/perangkat", {
+               fetch("http://10.10.10.67:8000/api/perangkat", {
                     headers,
                }),
 
-               fetch("http://10.10.10.30:8000/api/sesi_rental", {
+               fetch("http://10.10.10.67:8000/api/sesi_rental", {
                     headers,
                }),
 
-               fetch("http://10.10.10.30:8000/api/pembayaran", {
+               fetch("http://10.10.10.67:8000/api/pembayaran", {
                     headers,
                }),
           ]);

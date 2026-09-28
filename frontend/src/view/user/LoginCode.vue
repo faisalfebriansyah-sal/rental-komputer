@@ -21,7 +21,7 @@ const submitCode = async () => {
 
   try {
     const response = await fetch(
-      'http://10.10.10.30:8000/api/rental/verify-code',
+      'http://10.10.10.67:8000/api/rental/verify-code',
       {
         method: 'POST',
         headers: {
@@ -119,7 +119,7 @@ const submitCode = async () => {
             Kode Rental
           </label>
 
-          <input id="rental-code" v-model="rentalCode" type="text" placeholder="6 DIGIT KODE"
+          <input id="rental-code" v-model="rentalCode" type="text" placeholder="XXXXXX"
             class="mt-2 w-full rounded-xl border border-slate-200 bg-[#F6F4EB]/40 px-4 py-3 text-center font-medium tracking-widest text-slate-700 outline-none transition placeholder:tracking-normal placeholder:text-slate-400 focus:border-[#4682A9] focus:ring-4 focus:ring-[#91C8E4]/30"
             @input="rentalCode = rentalCode.replace(/\D/g, '').slice(0, 6)" />
 

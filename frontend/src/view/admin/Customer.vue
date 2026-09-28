@@ -9,6 +9,7 @@ import {
 	Search,
 	MoreVertical,
 	UserRound,
+	Download,
 } from "lucide-vue-next";
 
 const customers = ref([]);
@@ -46,6 +47,49 @@ const deleteError = ref("");
 const saving = ref(false);
 const formError = ref("");
 const search = ref("");
+const exporting = ref(false);
+
+/*
+|--------------------------------------------------------------------------
+| Export Excel
+|--------------------------------------------------------------------------
+*/
+const exportExcel = async () => {
+	exporting.value = true;
+
+	try {
+		const token = localStorage.getItem("token");
+
+		const response = await fetch(
+			"http://10.10.10.67:8000/api/pelanggan/export",
+			{
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			}
+		);
+
+		if (!response.ok) {
+			throw new Error("Gagal mengekspor data pelanggan.");
+		}
+
+		const blob = await response.blob();
+		const url = window.URL.createObjectURL(blob);
+		const link = document.createElement("a");
+		link.href = url;
+		link.download = "pelanggan.xlsx";
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		window.URL.revokeObjectURL(url);
+	} catch (err) {
+		console.error("Error export:", err);
+		alert(err.message || "Gagal mengekspor data.");
+	} finally {
+		exporting.value = false;
+	}
+};
 
 const getCustomers = async () => {
 	loading.value = true;
@@ -55,7 +99,7 @@ const getCustomers = async () => {
 		const token = localStorage.getItem("token");
 
 		const response = await fetch(
-			"http://10.10.10.30:8000/api/pelanggan",
+			"http://10.10.10.67:8000/api/pelanggan",
 			{
 				method: "GET",
 				headers: {
@@ -90,7 +134,7 @@ const getRentals = async () => {
 		const token = localStorage.getItem("token");
 
 		const response = await fetch(
-			"http://10.10.10.30:8000/api/sesi_rental",
+			"http://10.10.10.67:8000/api/sesi_rental",
 			{
 				method: "GET",
 				headers: {
@@ -148,7 +192,7 @@ const addCustomer = async () => {
 		const token = localStorage.getItem("token")
 
 		const response = await fetch(
-			"http://10.10.10.30:8000/api/pelanggan",
+			"http://10.10.10.67:8000/api/pelanggan",
 			{
 				method: "POST",
 				headers: {
@@ -216,7 +260,7 @@ const updateCustomer = async () => {
 		const token = localStorage.getItem("token");
 
 		const response = await fetch(
-			`http://10.10.10.30:8000/api/pelanggan/${editingCustomer.value.id}`,
+			`http://10.10.10.67:8000/api/pelanggan/${editingCustomer.value.id}`,
 			{
 				method: "PUT",
 				headers: {
@@ -270,7 +314,7 @@ const deleteCustomer = async () => {
 		const token = localStorage.getItem("token");
 
 		const response = await fetch(
-			`http://10.10.10.30:8000/api/pelanggan/${deletingCustomer.value.id}`,
+			`http://10.10.10.67:8000/api/pelanggan/${deletingCustomer.value.id}`,
 			{
 				method: "DELETE",
 				headers: {
@@ -353,11 +397,21 @@ onMounted(() => {
 						</p>
 					</div>
 
-					<button @click="showModal = true"
-						class="flex items-center gap-2 rounded-xl bg-[#4682A9] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#3d7599]">
-						<Plus :size="18" />
-						Tambah Pelanggan
-					</button>
+					<div class="flex items-center gap-3">
+						<button @click="exportExcel" :disabled="exporting || loading"
+							class="flex items-center gap-2 rounded-xl border border-[#4682A9] px-5 py-3 text-sm font-semibold text-[#4682A9] transition hover:bg-[#4682A9]/10 disabled:cursor-not-allowed disabled:opacity-50">
+							<span v-if="exporting"
+								class="h-4 w-4 animate-spin rounded-full border-2 border-[#4682A9]/40 border-t-[#4682A9]"></span>
+							<Download v-else :size="18" />
+							{{ exporting ? "Mengekspor..." : "Export Excel" }}
+						</button>
+
+						<button @click="showModal = true"
+							class="flex items-center gap-2 rounded-xl bg-[#4682A9] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#3d7599]">
+							<Plus :size="18" />
+							Tambah Pelanggan
+						</button>
+					</div>
 				</div>
 
 				<!-- Statistics -->
@@ -474,15 +528,16 @@ onMounted(() => {
 										Pelanggan
 									</th>
 
-									<th class="px-6 py-4 text-xs font-semibold uppercase text-slate-500">
+									<!-- <th class="px-6 py-4 text-xs font-semibold uppercase text-slate-500">
 										No. HP
-									</th>
+									</th> -->
 
 									<th class="px-6 py-4 text-xs font-semibold uppercase text-slate-500">
 										Terdaftar
 									</th>
 
-									<th class="px-6 py-4 text-right text-xs font-semibold uppercase text-slate-500">
+									<th
+										class="px-6 py-4 text-right text-xs font-semibold uppercase text-slate-500">
 										Aksi
 									</th>
 								</tr>
@@ -493,7 +548,8 @@ onMounted(() => {
 
 								<!-- Loading (Skeleton) -->
 								<template v-if="loading">
-									<tr v-for="i in 5" :key="i" class="animate-pulse border-t border-slate-100">
+									<tr v-for="i in 5" :key="i"
+										class="animate-pulse border-t border-slate-100">
 										<!-- Kolom Nama/Profil -->
 										<td class="px-6 py-4">
 											<div class="flex items-center gap-3">
@@ -531,21 +587,27 @@ onMounted(() => {
 										<div class="flex flex-col items-center text-center">
 											<div
 												class="relative flex h-20 w-20 items-center justify-center rounded-4xl bg-[#DCECF5] shadow-inner">
-												<div class="absolute -top-3 h-4 w-1.5 rounded-full bg-[#4682A9]"></div>
+												<div
+													class="absolute -top-3 h-4 w-1.5 rounded-full bg-[#4682A9]">
+												</div>
 												<div
 													class="flex h-14 w-16 flex-col items-center justify-center rounded-2xl bg-[#4682A9] shadow-sm">
 													<div class="flex gap-2">
-														<span class="h-2.5 w-2.5 rounded-full bg-white"></span>
-														<span class="h-2.5 w-2.5 rounded-full bg-white"></span>
+														<span
+															class="h-2.5 w-2.5 rounded-full bg-white"></span>
+														<span
+															class="h-2.5 w-2.5 rounded-full bg-white"></span>
 													</div>
-													<span class="mt-2 h-1.5 w-7 rounded-full bg-[#B9D8E8]"></span>
+													<span
+														class="mt-2 h-1.5 w-7 rounded-full bg-[#B9D8E8]"></span>
 												</div>
 											</div>
 											<p class="mt-5 text-base font-semibold text-slate-700">
 												Server sedang tidak terhubung
 											</p>
 											<p class="mt-1 max-w-md text-sm text-slate-500">
-												{{ error }} Coba periksa koneksi lalu muat ulang data pelanggan.
+												{{ error }} Coba periksa koneksi lalu muat ulang data
+												pelanggan.
 											</p>
 											<button @click="getCustomers"
 												class="mt-5 rounded-xl bg-[#4682A9] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3d7599]">
@@ -593,10 +655,10 @@ onMounted(() => {
 										</div>
 									</td>
 
-									<!-- Phone -->
+									<!-- Phone
 									<td class="px-6 py-4 text-sm text-slate-600">
 										{{ customer.no_hp }}
-									</td>
+									</td> -->
 
 									<!-- Rental -->
 									<td class="px-6 py-4">
@@ -630,7 +692,8 @@ onMounted(() => {
 						</p>
 
 						<div class="flex gap-2">
-							<button class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-500">
+							<button
+								class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-500">
 								Sebelumnya
 							</button>
 
@@ -638,7 +701,8 @@ onMounted(() => {
 								1
 							</button>
 
-							<button class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-500">
+							<button
+								class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-500">
 								Berikutnya
 							</button>
 						</div>
@@ -685,15 +749,15 @@ onMounted(() => {
 						class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-[#4682A9] focus:ring-2 focus:ring-[#91C8E4]/30" />
 				</div>
 
-				<!-- No HP -->
-				<div>
+
+				<!-- <div>
 					<label class="text-sm font-medium text-slate-700">
 						Nomor HP
 					</label>
 
 					<input v-model="form.no_hp" type="tel" placeholder="Contoh: 08xxxxxxx" required
 						class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-[#4682A9] focus:ring-2 focus:ring-[#91C8E4]/30" />
-				</div>
+				</div> -->
 
 				<!-- Error -->
 				<div v-if="formError" class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
@@ -757,15 +821,15 @@ onMounted(() => {
 						class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-[#4682A9] focus:ring-2 focus:ring-[#91C8E4]/30" />
 				</div>
 
-				<!-- No HP -->
-				<div>
+				]
+				<!-- <div>
 					<label class="text-sm font-medium text-slate-700">
 						Nomor HP
 					</label>
 
 					<input v-model="editForm.no_hp" type="tel" required
 						class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-[#4682A9] focus:ring-2 focus:ring-[#91C8E4]/30" />
-				</div>
+				</div> -->
 
 				<!-- Error -->
 				<div v-if="editError" class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
