@@ -64,4 +64,15 @@ class ExportDataTest extends TestCase
         $response->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         $this->assertStringContainsString('pembayaran.xlsx', $response->headers->get('Content-Disposition'));
     }
+
+    public function test_pelanggan_gets_unique_auto_generated_member_code(): void
+    {
+        $pelanggan1 = Pelanggan::create(['name' => 'Andi']);
+        $pelanggan2 = Pelanggan::create(['name' => 'Andi']);
+
+        $this->assertNotEmpty($pelanggan1->kode_member);
+        $this->assertNotEmpty($pelanggan2->kode_member);
+        $this->assertNotSame($pelanggan1->kode_member, $pelanggan2->kode_member);
+        $this->assertMatchesRegularExpression('/^MBR-\d{6}$/', $pelanggan1->kode_member);
+    }
 }
