@@ -7,6 +7,8 @@ use App\Models\Pembayaran;
 use App\Models\Sesi_rental;
 use Exception;
 use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class PembayaranController extends Controller
 {
@@ -28,6 +30,79 @@ class PembayaranController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function export()
+    {
+        try {
+            $pembayarans = Pembayaran::with([
+                'sesiRental.pelanggan',
+                'sesiRental.perangkat.jenisPerangkat',
+            ])->latest()->get();
+
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Pembayaran');
+            $sheet->fromArray([
+                ['ID', 'Nama Pelanggan', 'Perangkat', 'Jenis Perangkat', 'Jumlah', 'Status', 'Waktu Bayar'],
+            ], null, 'A1');
+
+            foreach ($pembayarans as $index => $pembayaran) {
+                $sheet->fromArray([[
+                    $pembayaran->id,
+                    $pembayaran->sesiRental?->pelanggan?->name ?? '-',
+                    $pembayaran->sesiRental?->perangkat?->name ?? '-',
+                    $pembayaran->sesiRental?->perangkat?->jenisPerangkat?->name ?? '-',
+                    number_format((float) $pembayaran->jumlah, 2, ',', '.'),
+                    $pembayaran->status,
+                    $pembayaran->waktu_bayar?->format('Y-m-d H:i:s') ?? '-',
+                ]], null, 'A' . ($index + 2));
+            }
+
+            foreach (['A', 'B', 'C', 'D', 'E', 'F', 'G'] as $column) {
+                $sheet->getColumnDimension($column)->setAutoSize(true);
+            }
+
+            $filePath = tempnam(sys_get_temp_dir(), 'pembayaran_');
+            $writer = new Xlsx($spreadsheet);
+            $writer->save($filePath);
+
+            return response()->download(
+                $filePath,
+                'pembayaran.xlsx',
+                ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+            )->deleteFileAfterSend(true);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $pembayaran = Pembayaran::with([
+                'sesiRental.pelanggan',
+                'sesiRental.perangkat.jenisPerangkat',
+            ])->find($id);
+
+            if (! $pembayaran) {
+                return response()->json(['status' => false, 'message' => 'data pembayaran tidak ada'], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Data pembayaran berhasil diambil',
+                'data' => $pembayaran,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
